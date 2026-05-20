@@ -1,6 +1,6 @@
 # Using built-in function
 num = 4095
-num = 34596
+#num = 34596
 b = bin(num)
 print(f"Built-in Function: {num} = {b} in binary.")
 
