@@ -13,7 +13,7 @@ d1 = []
 d2 = []
 d3 = []
 
-npts = 10000000
+npts = 100000
 ng = 0
 for i in range(npts):
 
