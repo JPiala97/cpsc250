@@ -1,6 +1,6 @@
 def dostuff(radius):
     global pi
-    area = 4 * pi * radius * radius
+    area = pi * radius * radius
     volume = (4/3) * pi * radius * radius * radius
     return (area, volume)
 
