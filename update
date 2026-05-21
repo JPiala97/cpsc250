@@ -1,4 +1,5 @@
 #!/bin/sh
 branch=$(git rev-parse --abrev-ref HEAD)
+echo "Updating branch $branch"
 git commit -am "Updates"
 git push origin $branch
