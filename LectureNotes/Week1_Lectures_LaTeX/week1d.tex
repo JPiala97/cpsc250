@@ -1,0 +1,303 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usetikzlibrary{shapes.geometric}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single
+}
+
+\title{CPSC 250 \\ Branching and Flow Control}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+One of the most important ideas in programming is the ability for a program to make decisions.
+
+Programs are not simply sequences of instructions executed line-by-line forever.
+
+Instead, programs often need to:
+
+\begin{itemize}
+    \item make decisions,
+    \item repeat actions,
+    \item and alter execution flow dynamically.
+\end{itemize}
+
+This is called:
+
+\[
+\textbf{flow control}
+\]
+
+\section{Branching}
+
+Branching occurs whenever a program must decide between multiple execution paths.
+
+Conceptually:
+
+\begin{center}
+\begin{tikzpicture}[scale=1.2]
+
+% Nodes
+\node (start) at (0,2) {};
+\node[draw, diamond, aspect=2] (decision) at (0,0) {Condition?};
+
+\node (yes) at (-2,-2) {Yes Branch};
+\node (no) at (2,-2) {No Branch};
+
+% Arrows
+\draw[->] (start) -- (decision);
+
+\draw[->] (decision) -- node[left] {Y} (yes);
+\draw[->] (decision) -- node[right] {N} (no);
+
+\end{tikzpicture}
+\end{center}
+
+
+\section{The if-else Structure}
+
+The most general branching structure in Python is:
+
+\begin{lstlisting}[language=Python]
+if condition:
+    # do something
+else:
+    # do something else
+\end{lstlisting}
+
+Sometimes the \texttt{else} branch simply does nothing.
+
+In that case:
+
+\begin{lstlisting}[language=Python]
+if condition:
+    # do something
+\end{lstlisting}
+
+is really just shorthand for:
+
+\begin{lstlisting}[language=Python]
+if condition:
+    # do something
+else:
+    pass
+\end{lstlisting}
+
+\section{Conditions Evaluate to Booleans}
+
+A condition must evaluate to a Boolean value:
+
+\[
+\texttt{True}
+\]
+
+or
+
+\[
+\texttt{False}
+\]
+
+Example:
+
+\begin{lstlisting}[language=Python]
+a == 4
+\end{lstlisting}
+
+This expression evaluates to:
+
+\begin{itemize}
+    \item \texttt{True} if \texttt{a} equals 4
+    \item \texttt{False} otherwise
+\end{itemize}
+
+\section{Comparison vs Assignment}
+
+A very common mistake for beginners is confusing:
+
+\begin{lstlisting}[language=Python]
+==
+\end{lstlisting}
+
+with:
+
+\begin{lstlisting}[language=Python]
+=
+\end{lstlisting}
+
+These are completely different operations.
+
+\subsection{Logical Comparison}
+
+\begin{lstlisting}[language=Python]
+a == 4
+\end{lstlisting}
+
+asks:
+
+\begin{quote}
+``Is the current value of \texttt{a} equal to 4?''
+\end{quote}
+
+\subsection{Assignment}
+
+\begin{lstlisting}[language=Python]
+a = 4
+\end{lstlisting}
+
+means:
+
+\begin{quote}
+``Store the value 4 into the memory location associated with \texttt{a}.''
+\end{quote}
+
+\section{Loops}
+
+Loops allow a section of code to execute repeatedly.
+
+There are two major loop structures in Python:
+
+\begin{enumerate}
+    \item \texttt{for} loops
+    \item \texttt{while} loops
+\end{enumerate}
+
+\section{For Loops}
+
+A \texttt{for} loop is useful when you know approximately how many times you want to execute a loop.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+for i in range(10):
+    print(i)
+\end{lstlisting}
+
+This loop executes 10 times:
+
+\[
+i = 0,1,2,\ldots,9
+\]
+
+\subsection{Looping Through Collections}
+
+\begin{lstlisting}[language=Python]
+l = ['a', 'b', 'c']
+
+for item in l:
+    print(item)
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+a
+b
+c
+\end{lstlisting}
+
+\section{While Loops}
+
+A \texttt{while} loop is useful when you do \emph{not} know in advance how many iterations are required.
+
+General structure:
+
+\begin{lstlisting}[language=Python]
+while condition:
+    # do stuff
+\end{lstlisting}
+
+The loop continues executing while the condition remains true.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+a = 0
+
+while a < 4:
+    print(a)
+    a += 1
+\end{lstlisting}
+
+The loop terminates once the condition becomes false.
+
+\section{Infinite Loops}
+
+One danger with \texttt{while} loops is accidentally creating infinite loops.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+while True:
+    print("Oops")
+\end{lstlisting}
+
+This loop never terminates unless interrupted externally.
+
+\section{Break Statements}
+
+Sometimes loops contain multiple conditions for termination.
+
+Example problem:
+
+\begin{quote}
+Loop through a list until reaching the value \texttt{"end"}.
+\end{quote}
+
+\begin{lstlisting}[language=Python]
+l = ["bob", "alice", "fred", "end", "jane"]
+
+for item in l:
+
+    if item == "end":
+        break
+
+    print(item)
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+bob
+alice
+fred
+\end{lstlisting}
+
+The \verb|break| statement immediately exits the loop.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Branching controls program decision-making.
+
+    \item Conditions evaluate to Boolean values.
+
+    \item \verb|==| performs comparison.
+
+    \item \verb|=| performs assignment.
+
+    \item \verb|for| loops are ideal for known iteration counts.
+
+    \item \verb|while| loops are ideal for condition-based iteration.
+
+    \item \verb|break| immediately exits a loop.
+\end{itemize}
+
+\end{document}

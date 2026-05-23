@@ -1,0 +1,220 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single
+}
+
+\title{CPSC 250 \\ Dictionaries}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Dictionaries are one of the most powerful and useful data structures in Python.
+
+Many computer scientists use dictionaries constantly because they provide an efficient way to map one piece of information to another.
+
+Students often struggle with dictionaries initially, but they are extremely useful once understood properly.
+
+\section{When Should You Use a Dictionary?}
+
+A dictionary is useful whenever there exists a natural one-to-one mapping between two collections of information.
+
+For example:
+
+\begin{itemize}
+    \item names $\rightarrow$ ages
+    \item student IDs $\rightarrow$ GPAs
+    \item usernames $\rightarrow$ passwords
+    \item countries $\rightarrow$ capitals
+\end{itemize}
+
+If there is a relationship between two kinds of data, a dictionary may be an appropriate structure.
+
+\section{Example Using Two Lists}
+
+Suppose we initially store information in two separate lists:
+
+\begin{lstlisting}[language=Python]
+names = ['Bob', 'Alice', 'Jane', 'Fred']
+ages = [18, 31, 16, 47]
+\end{lstlisting}
+
+The problem is that the relationship between the lists must be maintained manually.
+
+For example:
+
+\begin{itemize}
+    \item names[0] corresponds to ages[0]
+    \item names[1] corresponds to ages[1]
+\end{itemize}
+
+This becomes cumbersome and error-prone.
+
+\section{Replacing with a Dictionary}
+
+Instead, we can directly store the relationship:
+
+\begin{lstlisting}[language=Python]
+people = {
+    'Bob': 18,
+    'Alice': 31,
+    'Jane': 16,
+    'Fred': 47
+}
+\end{lstlisting}
+
+This preserves the correlation between the data naturally.
+
+\section{Accessing Dictionary Values}
+
+Dictionary values are accessed using keys:
+
+\begin{lstlisting}[language=Python]
+print(people['Bob'])
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+18
+\end{lstlisting}
+
+\section{Important Terminology}
+
+In a dictionary:
+
+\begin{lstlisting}
+'Bob' : 18
+\end{lstlisting}
+
+\begin{itemize}
+    \item \texttt{'Bob'} is called the \textbf{key}
+    \item \texttt{18} is called the \textbf{value}
+\end{itemize}
+
+Dictionaries store \textbf{key/value pairs}.
+
+\section{Keys and Values Can Have Different Types}
+
+Keys and values do not need to have the same type.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+friends = {
+    'Bob': 'Alice',
+    'Jane': 'Heather',
+    'Fred': 'John'
+}
+\end{lstlisting}
+
+Another example:
+
+\begin{lstlisting}[language=Python]
+finish_order = {
+    1: 'Bob',
+    2: 'Fred',
+    3: 'Bill'
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+print(finish_order[2])
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+Fred
+\end{lstlisting}
+
+Important:
+
+The value inside square brackets is a \textbf{key}, not an index.
+
+\section{Useful Dictionary Methods}
+
+\begin{itemize}
+    \item \verb|my_dict.keys()| --- return all keys
+
+    \item \verb|my_dict.values()| --- return all values
+
+    \item \verb|my_dict.items()| --- return all key/value pairs
+
+    \item \verb|my_dict.get(key)| --- safely retrieve a value
+
+    \item \verb|my_dict.update(other_dict)| --- merge dictionaries
+
+    \item \verb|my_dict.pop(key)| --- remove a key/value pair
+\end{itemize}
+
+\section{Mutability}
+
+Dictionaries are mutable structures.
+
+This means:
+
+\begin{itemize}
+    \item values can be changed,
+    \item new entries can be added,
+    \item entries can be removed.
+\end{itemize}
+
+Example:
+
+\begin{lstlisting}[language=Python]
+people['Bob'] = 19
+people['Mary'] = 27
+\end{lstlisting}
+
+\section{Summary of Python Data Structures}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Type & Description & Mutable? \\
+\hline
+int & Numeric integer & Yes* \\
+float & Floating point number & Yes* \\
+string & Sequence of characters & No \\
+list & Ordered sequence & Yes \\
+tuple & Ordered immutable sequence & No \\
+set & Unordered unique collection & Yes \\
+dict & Key/value mapping & Yes \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+\noindent
+*Python integers and floats are technically objects. Operations create new objects rather than modifying existing ones in place.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Dictionaries store mappings between keys and values.
+    \item They are ideal for representing related information.
+    \item Keys are used for lookup instead of numeric indexing.
+    \item Dictionaries are mutable and highly flexible.
+    \item Dictionaries are among the most useful data structures in Python.
+\end{itemize}
+
+\end{document}

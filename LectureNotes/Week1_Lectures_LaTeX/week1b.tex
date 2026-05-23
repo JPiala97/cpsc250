@@ -1,0 +1,323 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+
+\lstset{style=mystyle}
+
+\title{CPSC 250 \\ Lists, Tuples, and Sets}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Lists}
+
+Python lists are complex data structures that store a sequence of information. Lists usually contain related information, but they can contain multiple data types, including other lists.
+
+\begin{lstlisting}[language=Python]
+grades = [52, 78, 100, 92, 32]
+\end{lstlisting}
+
+Each element in the list has an index.
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Index & Value \\
+\hline
+0 & 52 \\
+1 & 78 \\
+2 & 100 \\
+3 & 92 \\
+4 & 32 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Iterating Through a List}
+
+\begin{lstlisting}[language=Python]
+for i in range(len(grades)):
+    print(i, grades[i], id(grades[i]))
+\end{lstlisting}
+
+This prints the index, the value stored at that index, and the memory identity of the object.
+
+\subsection{A Conceptual Memory Picture}
+
+It is useful to imagine a list as a sequence of memory locations:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Index & Value & Conceptual Memory Location \\
+\hline
+0 & 52 & 31 \\
+1 & 78 & 32 \\
+2 & 100 & 33 \\
+3 & 92 & 34 \\
+4 & 32 & 35 \\
+\hline
+\end{tabular}
+\end{center}
+
+However, this picture is only conceptual. Python does a lot of things under the hood to optimize list storage. The actual storage should not necessarily be interpreted as a simple sequential block of values.
+
+\subsection{Lists Can Store Mixed Information}
+
+\begin{lstlisting}[language=Python]
+employee_info = [
+    "John",
+    "Smith",
+    1289,
+    "Promenade Lane",
+    229724182
+]
+\end{lstlisting}
+
+This list contains a first name, last name, street number, street name, and Social Security number. Python permits this kind of mixed storage, although in larger programs we should be careful about whether this is the cleanest design.
+
+\section{Python List Methods}
+
+Some common list operations include:
+
+\begin{itemize}
+    \item \texttt{append(value)}: add a value to the end of the list.
+    \item \texttt{insert(index, value)}: insert a value at a particular position.
+    \item \texttt{remove(value)}: remove the first occurrence of a value.
+    \item \texttt{pop()}: remove and return the last element.
+    \item \texttt{sort()}: sort the list in place.
+    \item \texttt{reverse()}: reverse the list in place.
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+nums = [3, 1, 4]
+nums.append(10)
+nums.sort()
+print(nums)
+\end{lstlisting}
+
+\section{Tuples}
+
+Tuples are sequence-like structures that cannot be changed once created. We say that tuples are \textbf{immutable}.
+
+\begin{center}
+\begin{tabular}{c c}
+List & \texttt{[1, 2, 3]} \\
+Tuple & \texttt{(1, 2, 3)}
+\end{tabular}
+\end{center}
+
+Examples:
+
+\begin{lstlisting}[language=Python]
+my_list = [1, 2, 3]
+my_tuple = (1, 2, 3)
+\end{lstlisting}
+
+Tuples are useful for data that should not change. They are often used for constants or for returning multiple values from a function.
+
+Honestly, tuples are not always the first structure students reach for, but their immutability can be very useful.
+
+\section{Named Tuples}
+
+One problem with lists and ordinary tuples is that referring to elements by index can make code hard to read.
+
+\begin{lstlisting}[language=Python]
+car = ('Mercedes', 'E350', 62000)
+print(car[2])
+\end{lstlisting}
+
+The expression \texttt{car[2]} works, but it is not especially descriptive. A reader has to remember that index 2 means the price.
+
+Python's \texttt{collections} package provides \texttt{namedtuple}, which allows us to refer to tuple elements by name.
+
+\begin{lstlisting}[language=Python]
+from collections import namedtuple
+
+Car = namedtuple('Car', ['make', 'model', 'price'])
+
+mercedes = Car('Mercedes', 'E350', 62000)
+bmw = Car('BMW', '325i', 67000)
+
+print(mercedes.price)
+print(bmw.model)
+\end{lstlisting}
+
+This produces code that is easier to read and less dependent on remembering numerical positions.
+
+\section{Sets}
+
+Sets in Python are unordered collections of unique objects. They behave much like sets in mathematics.
+
+\begin{lstlisting}[language=Python]
+my_set = {1, 2, 3, 17}
+\end{lstlisting}
+
+Sets use curly braces:
+
+\[
+\{ \}
+\]
+
+\subsection{List, Tuple, and Set Syntax}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Structure & Syntax & Mutable? \\
+\hline
+List & \texttt{[ ]} & Yes \\
+Tuple & \texttt{( )} & No \\
+Set & \texttt{\{ \}} & Yes \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Using Sets to Remove Duplicates}
+
+Sets automatically eliminate duplicate values.
+
+\begin{lstlisting}[language=Python]
+first_names = [
+    'bob',
+    'alice',
+    'jane',
+    'bob',
+    'fred',
+    'alice'
+]
+
+first_names_set = set(first_names)
+
+print(first_names_set)
+\end{lstlisting}
+
+Possible output:
+
+\begin{lstlisting}
+{'bob', 'alice', 'jane', 'fred'}
+\end{lstlisting}
+
+The order of the output is not guaranteed, because sets are unordered.
+
+\section{Set Methods}
+
+Useful set methods include:
+
+\begin{itemize}
+    \item \verb|len(my_set)| --- return the number of elements.
+    
+    \item \verb|set1.update(set2)| --- add all elements from another set.
+    
+    \item \verb|my_set.add(value)| --- add one value.
+    
+    \item \verb|my_set.remove(value)| --- remove a value.
+    
+    \item \verb|my_set.pop()| --- remove and return an arbitrary value.
+    
+    \item \verb|my_set.clear()| --- remove all values.
+\end{itemize}
+
+\subsection{Important Warning About \texttt{pop()}}
+
+For lists, \texttt{pop()} removes the last element by default. For sets, however, there is no ``last'' element because sets are unordered.
+
+Therefore:
+
+\begin{lstlisting}[language=Python]
+my_set.pop()
+\end{lstlisting}
+
+removes an arbitrary element. You should not write code that depends on which element will be removed.
+
+\section{Mathematical Set Operations}
+
+Python sets support standard mathematical operations.
+
+\subsection{Union}
+
+The union of two sets contains everything that appears in either set.
+
+\[
+A \cup B
+\]
+
+\begin{lstlisting}[language=Python]
+A.union(B)
+\end{lstlisting}
+
+\subsection{Intersection}
+
+The intersection contains only elements that appear in both sets.
+
+\[
+A \cap B
+\]
+
+\begin{lstlisting}[language=Python]
+A.intersection(B)
+\end{lstlisting}
+
+\subsection{Difference}
+
+The difference contains elements in one set but not the other.
+
+\[
+A - B
+\]
+
+\begin{lstlisting}[language=Python]
+A.difference(B)
+\end{lstlisting}
+
+\subsection{Symmetric Difference}
+
+The symmetric difference contains elements that appear in exactly one of the two sets.
+
+\begin{lstlisting}[language=Python]
+A.symmetric_difference(B)
+\end{lstlisting}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Lists are ordered, mutable collections.
+    \item Lists can hold mixed data types, but that flexibility should be used carefully.
+    \item Tuples are ordered but immutable.
+    \item Named tuples make tuple-based code easier to read.
+    \item Sets are unordered collections of unique values.
+    \item Sets are useful for removing duplicates and performing mathematical set operations.
+\end{itemize}
+
+\end{document}

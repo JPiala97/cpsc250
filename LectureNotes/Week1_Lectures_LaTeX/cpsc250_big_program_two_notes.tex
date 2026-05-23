@@ -1,0 +1,733 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Big Program Two: Credit Card Debt Search Program}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+In this project, we consider a realistic programming task involving a large CSV data file.
+
+Suppose we are given a large CSV file containing information about individuals in the United States, including:
+
+\begin{itemize}
+    \item last names,
+    \item states,
+    \item credit card debt values.
+\end{itemize}
+
+Our goal is to write a Python program that can search this data efficiently and answer questions such as:
+
+\begin{enumerate}
+    \item Find all people whose names start with a particular string.
+    \item Find all people with debt below some limit.
+    \item Find all people from a particular state.
+    \item Find the person with the highest debt.
+\end{enumerate}
+
+Although this may initially seem like a large and intimidating task, the key idea is:
+
+\begin{quote}
+Break the large problem into many smaller problems.
+\end{quote}
+
+Each smaller problem is manageable and usually only requires a few lines of code.
+
+\section{Questions We Must Answer}
+
+Before writing code, we should think carefully about the design of the program.
+
+Some important questions are:
+
+\begin{enumerate}
+    \item What does the CSV file look like?
+    \item What data structures should we use?
+    \item What algorithms are needed for searching?
+\end{enumerate}
+
+These are examples of software design questions.
+
+\section{Understanding the CSV File}
+
+Suppose our CSV file is called:
+
+\begin{lstlisting}
+customer_data.csv
+\end{lstlisting}
+
+and contains rows such as:
+
+\begin{lstlisting}
+Smith,VA,2450.75
+Johnson,CA,10234.10
+Jones,NY,500.00
+Brown,TX,7890.50
+\end{lstlisting}
+
+Each row contains three pieces of information:
+
+\begin{enumerate}
+    \item Last name,
+    \item State,
+    \item Credit card debt.
+\end{enumerate}
+
+Notice that:
+
+\begin{itemize}
+    \item names are strings,
+    \item states are strings,
+    \item debts are floating point numbers.
+\end{itemize}
+
+\section{Choosing a Data Structure}
+
+The notes propose a very simple first design idea:
+
+\begin{quote}
+Use three ordered lists.
+\end{quote}
+
+Specifically:
+
+\begin{lstlisting}[language=Python]
+names = []
+states = []
+debts = []
+\end{lstlisting}
+
+These are called \textbf{parallel lists}.
+
+\subsection{Why Parallel Lists Work}
+
+The important idea is that the entries at the same index correspond to the same person.
+
+For example:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Index & names & states & debts \\
+\midrule
+0 & Smith & VA & 2450.75 \\
+1 & Johnson & CA & 10234.10 \\
+2 & Jones & NY & 500.00 \\
+3 & Brown & TX & 7890.50 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Thus:
+
+\begin{lstlisting}[language=Python]
+names[2]
+\end{lstlisting}
+
+corresponds to:
+
+\begin{lstlisting}[language=Python]
+states[2]
+\end{lstlisting}
+
+and:
+
+\begin{lstlisting}[language=Python]
+debts[2]
+\end{lstlisting}
+
+because all three refer to the same customer.
+
+\section{Step 1: Read the Data from the File}
+
+The first major task is to read the CSV file and store the information in the lists.
+
+The notes propose writing a function:
+
+\begin{lstlisting}[language=Python]
+def read_customer_data(filename):
+\end{lstlisting}
+
+This function should:
+
+\begin{enumerate}
+    \item open the file,
+    \item read every row,
+    \item extract the data,
+    \item store the data in the lists,
+    \item return the lists.
+\end{enumerate}
+
+\section{Opening a CSV File}
+
+Python provides built-in file handling tools.
+
+A common pattern is:
+
+\begin{lstlisting}[language=Python]
+with open(filename, "r") as file:
+\end{lstlisting}
+
+Important ideas:
+
+\begin{itemize}
+    \item \texttt{"r"} means ``read mode'',
+    \item \texttt{file} becomes a file object,
+    \item the \texttt{with} statement automatically closes the file.
+\end{itemize}
+
+\section{Using the CSV Module}
+
+Python includes a built-in module called \texttt{csv} for working with CSV files.
+
+We begin by importing it:
+
+\begin{lstlisting}[language=Python]
+import csv
+\end{lstlisting}
+
+Then we create a CSV reader:
+
+\begin{lstlisting}[language=Python]
+reader = csv.reader(file)
+\end{lstlisting}
+
+The reader behaves like a loop over rows.
+
+Each row is itself a list of strings.
+
+For example, a row might look like:
+
+\begin{lstlisting}[language=Python]
+["Smith", "VA", "2450.75"]
+\end{lstlisting}
+
+\section{Reading Rows from the File}
+
+We loop through the rows:
+
+\begin{lstlisting}[language=Python]
+for row in reader:
+\end{lstlisting}
+
+Inside the loop:
+
+\begin{itemize}
+    \item \texttt{row[0]} is the name,
+    \item \texttt{row[1]} is the state,
+    \item \texttt{row[2]} is the debt.
+\end{itemize}
+
+We append these values to the appropriate lists.
+
+\section{The \texttt{append()} Method}
+
+Python lists provide the method:
+
+\begin{lstlisting}[language=Python]
+my_list.append(value)
+\end{lstlisting}
+
+This adds a new value to the end of the list.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+names.append("Smith")
+\end{lstlisting}
+
+adds the string \texttt{"Smith"} to the end of the list.
+
+\section{Converting Debt to a Float}
+
+When data is read from a CSV file, everything initially appears as a string.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+row[2] == "2450.75"
+\end{lstlisting}
+
+But debt values should behave numerically.
+
+Therefore we convert them:
+
+\begin{lstlisting}[language=Python]
+float(row[2])
+\end{lstlisting}
+
+This converts the string into a floating point number.
+
+\section{Complete File Reading Function}
+
+Putting everything together:
+
+\begin{lstlisting}[language=Python]
+import csv
+
+def read_customer_data(filename):
+
+    names = []
+    states = []
+    debts = []
+
+    with open(filename, "r") as file:
+
+        reader = csv.reader(file)
+
+        for row in reader:
+
+            names.append(row[0])
+            states.append(row[1])
+            debts.append(float(row[2]))
+
+    return names, states, debts
+\end{lstlisting}
+
+\section{Returning Multiple Values}
+
+Notice the line:
+
+\begin{lstlisting}[language=Python]
+return names, states, debts
+\end{lstlisting}
+
+Python allows functions to return multiple values.
+
+We can capture them using:
+
+\begin{lstlisting}[language=Python]
+names, states, debts = read_customer_data("customer_data.csv")
+\end{lstlisting}
+
+This is extremely useful when working with related data structures.
+
+\section{Step 2: Get Information from the User}
+
+Next, the program asks the user for search information.
+
+The notes suggest three kinds of input:
+
+\begin{enumerate}
+    \item a debt limit,
+    \item a search phrase,
+    \item a state abbreviation.
+\end{enumerate}
+
+For example:
+
+\begin{lstlisting}[language=Python]
+debt_limit = float(input("Enter debt limit: "))
+search_phrase = input("Enter search phrase: ")
+st = input("Enter state abbreviation: ")
+\end{lstlisting}
+
+Notice:
+
+\begin{itemize}
+    \item debt limits should be converted to numbers,
+    \item names and states remain strings.
+\end{itemize}
+
+\section{Searching for Names}
+
+Suppose we want all names beginning with:
+
+\begin{lstlisting}
+"Jo"
+\end{lstlisting}
+
+We loop through the list of names.
+
+\begin{lstlisting}[language=Python]
+for n in range(len(names)):
+\end{lstlisting}
+
+The expression:
+
+\begin{lstlisting}[language=Python]
+range(len(names))
+\end{lstlisting}
+
+produces indices:
+
+\[
+0, 1, 2, 3, \ldots
+\]
+
+Using indices is important because we need access to the matching state and debt information.
+
+\section{The \texttt{startswith()} String Method}
+
+Python strings provide a method called:
+
+\begin{lstlisting}[language=Python]
+startswith()
+\end{lstlisting}
+
+Example:
+
+\begin{lstlisting}[language=Python]
+if names[n].startswith(search_phrase):
+\end{lstlisting}
+
+This checks whether the string begins with the desired text.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+"Johnson".startswith("Jo")
+\end{lstlisting}
+
+returns:
+
+\begin{lstlisting}
+True
+\end{lstlisting}
+
+while:
+
+\begin{lstlisting}[language=Python]
+"Smith".startswith("Jo")
+\end{lstlisting}
+
+returns:
+
+\begin{lstlisting}
+False
+\end{lstlisting}
+
+\section{Complete Name Search Example}
+
+\begin{lstlisting}[language=Python]
+print("Matching names:")
+
+for n in range(len(names)):
+
+    if names[n].startswith(search_phrase):
+
+        print(names[n], states[n], debts[n])
+\end{lstlisting}
+
+\section{Searching by Debt}
+
+Suppose we want everyone with debt less than \$2000.
+
+We compare each debt value against the limit.
+
+\begin{lstlisting}[language=Python]
+print("People below debt limit:")
+
+for n in range(len(debts)):
+
+    if debts[n] < debt_limit:
+
+        print(names[n], states[n], debts[n])
+\end{lstlisting}
+
+Notice that this is a simple linear search through the data.
+
+\section{Searching by State}
+
+Suppose we want all customers from Virginia.
+
+\begin{lstlisting}[language=Python]
+print("People from state:", st)
+
+for n in range(len(states)):
+
+    if states[n] == st:
+
+        print(names[n], states[n], debts[n])
+\end{lstlisting}
+
+This uses the equality operator:
+
+\begin{lstlisting}[language=Python]
+==
+\end{lstlisting}
+
+to compare strings.
+
+\section{Step 3: Find the Highest Credit Card Debt}
+
+Another important task is finding the maximum debt value.
+
+The notes use a classic algorithm based on tracking the index of the largest value found so far.
+
+\section{Understanding the Maximum Search Algorithm}
+
+The algorithm is:
+
+\begin{enumerate}
+    \item Assume the first value is the maximum.
+    \item Loop through the remaining values.
+    \item If a larger value is found, update the index.
+    \item At the end, the stored index corresponds to the largest debt.
+\end{enumerate}
+
+\section{Implementing the Maximum Search}
+
+\begin{lstlisting}[language=Python]
+index_max = 0
+
+for n in range(len(debts)):
+
+    if debts[n] > debts[index_max]:
+
+        index_max = n
+\end{lstlisting}
+
+Important idea:
+
+\begin{quote}
+We store the index of the maximum value, not the value itself.
+\end{quote}
+
+This is useful because the index also gives access to the matching name and state.
+
+\section{Printing the Maximum Debt Customer}
+
+After the loop finishes:
+
+\begin{lstlisting}[language=Python]
+print("Highest debt customer:")
+print(names[index_max], states[index_max], debts[index_max])
+\end{lstlisting}
+
+Suppose:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Index & Name & State & Debt \\
+\midrule
+0 & Smith & VA & 2450 \\
+1 & Johnson & CA & 10234 \\
+2 & Jones & NY & 500 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+index_max == 1
+\end{lstlisting}
+
+because Johnson has the largest debt.
+
+\section{Building Programs Incrementally}
+
+A very important lesson from this project is:
+
+\begin{quote}
+Large programs should be built incrementally.
+\end{quote}
+
+Instead of trying to write everything at once:
+
+\begin{enumerate}
+    \item Write one small piece.
+    \item Test it.
+    \item Move to the next piece.
+    \item Test again.
+\end{enumerate}
+
+This is how real software development works.
+
+\section{Program Decomposition}
+
+At first, a 100-line program can appear overwhelming.
+
+However:
+
+\begin{quote}
+Most large programs are really collections of many small programs.
+\end{quote}
+
+In this project:
+
+\begin{itemize}
+    \item reading the file is only a few lines,
+    \item searching names is only a few lines,
+    \item searching debts is only a few lines,
+    \item finding a maximum is only a few lines.
+\end{itemize}
+
+The complexity comes from combining many simple ideas together.
+
+\section{Complete Example Program}
+
+\begin{lstlisting}[language=Python]
+import csv
+
+
+def read_customer_data(filename):
+
+    names = []
+    states = []
+    debts = []
+
+    with open(filename, "r") as file:
+
+        reader = csv.reader(file)
+
+        for row in reader:
+
+            names.append(row[0])
+            states.append(row[1])
+            debts.append(float(row[2]))
+
+    return names, states, debts
+
+
+# Read data from the CSV file
+names, states, debts = read_customer_data("customer_data.csv")
+
+
+# Get information from the user
+debt_limit = float(input("Enter debt limit: "))
+search_phrase = input("Enter search phrase: ")
+st = input("Enter state abbreviation: ")
+
+
+# Search for names
+print()
+print("Names beginning with", search_phrase)
+
+for n in range(len(names)):
+
+    if names[n].startswith(search_phrase):
+
+        print(names[n], states[n], debts[n])
+
+
+# Search by debt
+print()
+print("People below debt limit")
+
+for n in range(len(debts)):
+
+    if debts[n] < debt_limit:
+
+        print(names[n], states[n], debts[n])
+
+
+# Search by state
+print()
+print("People from", st)
+
+for n in range(len(states)):
+
+    if states[n] == st:
+
+        print(names[n], states[n], debts[n])
+
+
+# Find highest debt
+index_max = 0
+
+for n in range(len(debts)):
+
+    if debts[n] > debts[index_max]:
+
+        index_max = n
+
+
+print()
+print("Highest debt customer:")
+
+print(names[index_max], states[index_max], debts[index_max])
+\end{lstlisting}
+
+\section{Possible Improvements}
+
+This design works well for learning purposes, but there are many possible improvements.
+
+For example:
+
+\begin{itemize}
+    \item use dictionaries instead of parallel lists,
+    \item use classes and objects,
+    \item use pandas,
+    \item sort the data,
+    \item use binary search,
+    \item add error checking,
+    \item handle malformed CSV files,
+    \item make searches case-insensitive.
+\end{itemize}
+
+However, the simple version is ideal for learning the fundamentals.
+
+\section{Computational Complexity}
+
+All searches in this program are linear searches.
+
+That means:
+
+\[
+\mathcal{O}(n)
+\]
+
+time complexity.
+
+Why?
+
+Because in the worst case, we may need to examine every entry in the list.
+
+For a file with:
+
+\[
+10{,}000
+\]
+
+rows, this is usually perfectly acceptable.
+
+For millions of rows, more sophisticated data structures might become necessary.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item CSV files store structured tabular data.
+    \item The \texttt{csv} module helps read CSV files safely.
+    \item Parallel lists are a simple but useful data structure.
+    \item File data is initially read as strings.
+    \item Numerical values often require conversion using \texttt{float()} or \texttt{int()}.
+    \item Linear searches are straightforward to implement.
+    \item The \texttt{startswith()} method is useful for string searching.
+    \item Maximum search algorithms often track indices rather than values.
+    \item Large programs become manageable when broken into smaller pieces.
+\end{itemize}
+
+\end{document}

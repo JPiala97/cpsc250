@@ -1,0 +1,428 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+
+\lstset{style=mystyle}
+
+\title{CPSC 250 \\ Lecture 1: Primitive Data Types and Memory}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+A common misconception among students entering CPSC 250 is that they should already remember every detail from CPSC 150/150L perfectly. In reality, students enter with a wide range of preparation levels.
+
+The goal of this course is not only to reinforce earlier material, but also to develop a much deeper understanding of how Python actually works internally.
+
+In particular, we will focus heavily on:
+
+\begin{itemize}
+    \item Data structures
+    \item Memory representation
+    \item Algorithmic thinking
+    \item Object-oriented programming
+    \item Numerical data representation
+\end{itemize}
+
+\section{Why Data Structures Matter}
+
+In many ways, data structures are the central idea in programming.
+
+Every piece of data in a computer program must ultimately be stored somewhere in memory. Understanding:
+
+\begin{itemize}
+    \item how data is represented,
+    \item how it is organized,
+    \item and how efficiently it can be manipulated
+\end{itemize}
+
+is essential for designing good algorithms.
+
+Python intentionally hides many low-level implementation details from programmers. This is convenient, but it can also obscure what is really happening underneath the hood.
+
+In this course, we will repeatedly pull back that abstraction layer.
+
+\section{Primitive Data Types in Python}
+
+The four basic primitive-style data types we will review are:
+
+\begin{enumerate}
+    \item Integers
+    \item Floating-point numbers
+    \item Strings
+    \item Booleans
+\end{enumerate}
+
+\subsection{Examples}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Type & Examples \\
+\hline
+Integer & \texttt{1}, \texttt{0}, \texttt{42}, \texttt{-6} \\
+Float & \texttt{1.2}, \texttt{-3.14159}, \texttt{3.28e-6} \\
+String & \verb|"a"|, \verb|"Bob"|, \verb|\n| \\
+Boolean & \texttt{True}, \texttt{False} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Important Notes}
+
+Different data types:
+
+\begin{itemize}
+    \item require different amounts of memory,
+    \item use different storage mechanisms,
+    \item and support different operations.
+\end{itemize}
+
+\section{Integers in Python}
+
+One of Python's nicest features is that integers effectively behave as arbitrary-precision numbers.
+
+Unlike C or C++, Python integers do not normally overflow when they exceed a fixed size.
+
+\subsection{Overflow in C/C++}
+
+In low-level languages like C/C++, integer variables are allocated a fixed number of bytes.
+
+For example:
+
+\begin{itemize}
+    \item 4-byte integers can store only a limited range of values.
+    \item Exceeding that range produces overflow.
+\end{itemize}
+
+Python hides this complexity from the programmer.
+
+\section{Python Integers are Objects}
+
+Although integers appear to be primitive values, Python integers are actually full Python objects implemented internally in C.
+
+Conceptually:
+
+\begin{itemize}
+    \item a Python integer stores metadata,
+    \item bookkeeping information,
+    \item and dynamically allocated memory.
+\end{itemize}
+
+This flexibility comes at the cost of additional memory overhead.
+
+\subsection{Factorial Example}
+
+\begin{lstlisting}[language=Python]
+def factorial(n):
+    if n == 0 or n == 1:
+        return 1
+
+    return n * factorial(n - 1)
+
+print(factorial(231))
+\end{lstlisting}
+
+Python can compute extremely large integers with hundreds of digits automatically.
+
+Internally, Python allocates additional memory as necessary.
+
+\subsection{Memory Cost}
+
+Even very small integers require substantial overhead in Python.
+
+A Python integer may require roughly 28 bytes or more of memory, depending on the system architecture.
+
+This is because Python integers behave more like objects than primitive machine-level integers.
+
+\section{Floating Point Numbers}
+
+Most programming languages represent floating point numbers using binary fractions.
+
+This introduces important limitations:
+
+\begin{enumerate}[label=(\alph*)]
+    \item Some decimal numbers cannot be represented exactly.
+    \item Floating-point arithmetic introduces rounding error.
+\end{enumerate}
+
+\section{Scientific Notation Review}
+
+Recall ordinary scientific notation:
+
+\[
+3352.28 = 3.35228 \times 10^3
+\]
+
+This representation separates a number into:
+
+\begin{itemize}
+    \item mantissa/significand
+    \item base
+    \item exponent
+\end{itemize}
+
+\section{Binary Fractions}
+
+Decimal fractions use powers of 10:
+
+\[
+32.56 = 3(10^1) + 2(10^0) + 5(10^{-1}) + 6(10^{-2})
+\]
+
+Binary fractions instead use powers of 2.
+
+For example:
+
+\[
+1011.011_2
+\]
+
+corresponds to:
+
+\[
+1(2^3) + 0(2^2) + 1(2^1) + 1(2^0)
++ 0(2^{-1}) + 1(2^{-2}) + 1(2^{-3})
+\]
+
+which equals:
+
+\[
+8 + 0 + 2 + 1 + 0 + 0.25 + 0.125 = 11.375
+\]
+
+\section{Binary Scientific Notation}
+
+Floating point numbers are stored in normalized binary scientific notation.
+
+Example:
+
+\[
+11.01_2 = 1.101_2 \times 2^1
+\]
+
+The normalized form always begins with:
+
+\[
+1.xxxxx
+\]
+
+This allows one bit to be implicitly assumed rather than explicitly stored.
+
+\section{32-Bit Floating Point Representation}
+
+IEEE-754 single precision floating point numbers are stored using:
+
+\begin{itemize}
+    \item 1 sign bit
+    \item 8 exponent bits
+    \item 23 mantissa bits
+\end{itemize}
+
+\subsection{Exponent Bias}
+
+The exponent field uses a bias of 127.
+
+Thus:
+
+\[
+\text{stored exponent} = E + 127
+\]
+
+Examples:
+
+\begin{align*}
+00000001_2 &\rightarrow 2^{-126} \\
+11111110_2 &\rightarrow 2^{127}
+\end{align*}
+
+Special exponent values are reserved for:
+
+\begin{itemize}
+    \item infinity
+    \item NaN (Not a Number)
+    \item denormalized numbers
+\end{itemize}
+
+\section{Special Exponent Values}
+
+\begin{itemize}
+    \item exponent bits are all 1,
+    \item and the mantissa is all 0,
+\end{itemize}
+
+then the number represents:
+
+\[
++\infty
+\]
+
+or:
+
+\[
+-\infty
+\]
+
+depending on the sign bit.
+
+Examples that may generate infinity include:
+
+\begin{lstlisting}[language=Python]
+1.0 / 0.0
+\end{lstlisting}
+
+or arithmetic overflow.
+
+\subsubsection{NaN (Not a Number)}
+
+If:
+
+\begin{itemize}
+    \item exponent bits are all 1,
+    \item but the mantissa is not all 0,
+\end{itemize}
+
+then the result is NaN.
+
+NaN represents undefined or invalid numerical operations.
+
+Examples include:
+
+\begin{lstlisting}[language=Python]
+0.0 / 0.0
+math.sqrt(-1)
+\end{lstlisting}
+
+NaN has unusual comparison behavior:
+
+\begin{lstlisting}[language=Python]
+float('nan') == float('nan')
+\end{lstlisting}
+
+returns:
+
+\begin{lstlisting}
+False
+\end{lstlisting}
+
+This behavior is intentional and follows the IEEE-754 standard.
+
+\subsection{Summary}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Exponent Field & Interpretation \\
+\hline
+00000000 & Denormalized Numbers / Zero \\
+00000001 to 11111110 & Normal Floating Point Numbers \\
+11111111 & Infinity or NaN \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Strings in Python}
+
+Strings are significantly more complicated internally than they first appear.
+
+Consider:
+
+\begin{lstlisting}[language=Python]
+s1 = "abcdef"
+\end{lstlisting}
+
+Conceptually, the characters are stored sequentially in memory:
+
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+a \\
+\hline
+b \\
+\hline
+c \\
+\hline
+d \\
+\hline
+e \\
+\hline
+f \\
+\hline
+\end{tabular}
+\end{center}
+
+Each character is represented internally using character encoding schemes such as ASCII or Unicode.
+
+\subsection{Memory Addresses}
+
+\begin{lstlisting}[language=Python]
+print(s1)
+print(id(s1))
+\end{lstlisting}
+
+The function \texttt{id()} returns the memory identity of the object.
+
+\section{Booleans}
+
+In Python, booleans are actually a subclass of integers.
+
+Specifically:
+
+\[
+\texttt{True} = 1
+\]
+
+and
+
+\[
+\texttt{False} = 0
+\]
+
+Internally, booleans therefore behave much like integers.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Python hides many implementation details.
+    \item Data representation strongly affects algorithm behavior.
+    \item Integers, floats, strings, and booleans are all implemented as objects.
+    \item Floating point numbers are approximations.
+    \item Understanding memory representation is essential for serious programming.
+\end{itemize}
+
+\end{document}
+

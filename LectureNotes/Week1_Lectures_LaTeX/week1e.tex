@@ -1,0 +1,335 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single
+}
+
+\title{CPSC 250 \\ Functions}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Functions are one of the most important organizational tools in programming.
+
+Functions allow us to:
+
+\begin{itemize}
+    \item divide problems into smaller pieces,
+    \item reuse code,
+    \item improve readability,
+    \item and reduce duplication.
+\end{itemize}
+
+\section{Basic Function Structure}
+
+General syntax:
+
+\begin{lstlisting}[language=Python]
+def my_function(arguments):
+
+    # code here
+
+    return values
+\end{lstlisting}
+
+Important parts:
+
+\begin{itemize}
+    \item Function name
+    \item Argument list
+    \item Function body
+    \item Return value list
+\end{itemize}
+
+\subsection{Argument List}
+
+The argument list contains information passed \emph{to} the function.
+
+\subsection{Return Value List}
+
+The return value list contains information returned \emph{from} the function.
+
+\section{Conceptual Model}
+
+Conceptually:
+
+\begin{center}
+Main Program $\rightarrow$ Function
+
+\vspace{0.3cm}
+
+Arguments flow into the function.
+
+\vspace{0.3cm}
+
+Return values flow back out.
+\end{center}
+
+\section{Example: add() Function}
+
+\begin{lstlisting}[language=Python]
+def add(a, b):
+
+    c = a + b
+
+    return c
+\end{lstlisting}
+
+Example usage:
+
+\begin{lstlisting}[language=Python]
+x = 4
+y = 6
+
+z = add(x, y)
+
+print(z)
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+10
+\end{lstlisting}
+
+\section{Very Important Idea: Pass by Value}
+
+Inside the function:
+
+\begin{itemize}
+    \item \texttt{a} and \texttt{b} are copies of \texttt{x} and \texttt{y}
+    \item they are different variables in memory
+\end{itemize}
+
+Changing variables inside the function does not change variables in the main program.
+
+This is called:
+
+\[
+\textbf{pass by value}
+\]
+
+\section{Naming Convention Recommendation}
+
+A very good habit is to use different variable names inside functions than in the main program.
+
+Example:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Main Program & Function \\
+\hline
+x, y, z & a, b, c \\
+\hline
+\end{tabular}
+\end{center}
+
+This reinforces the idea that these are different variables occupying different memory locations.
+
+\section{Dynamic Typing in Python}
+
+Unlike languages such as:
+
+\begin{itemize}
+    \item C
+    \item C++
+    \item Java
+    \item Go
+\end{itemize}
+
+Python uses dynamic typing (sometimes informally called ``duck typing'').
+
+The same function may operate on multiple data types.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+def add(a, b):
+
+    return a + b
+\end{lstlisting}
+
+This works for integers:
+
+\begin{lstlisting}[language=Python]
+print(add(4, 6))
+\end{lstlisting}
+
+but also for strings:
+
+\begin{lstlisting}[language=Python]
+x = "that is "
+y = "so cool!"
+
+z = add(x, y)
+
+print(z)
+\end{lstlisting}
+
+Output:
+
+\begin{lstlisting}
+that is so cool!
+\end{lstlisting}
+
+Python automatically determines the correct behavior based on object types.
+
+\section{Variable Scope}
+
+Scope determines where variables have meaning inside a program.
+
+\subsection{Example}
+
+\begin{lstlisting}[language=Python]
+employee_name = 'Bob'
+
+def get_name():
+
+    name = input()
+
+    employee_name = name
+
+get_name()
+
+print(employee_name)
+\end{lstlisting}
+
+Important:
+
+The variable:
+
+\begin{lstlisting}[language=Python]
+employee_name
+\end{lstlisting}
+
+inside the function is different from the variable outside the function.
+
+Thus, the printed value remains:
+
+\begin{lstlisting}
+Bob
+\end{lstlisting}
+
+unless special mechanisms such as \verb|global| are used.
+
+\section{Pass by Reference?}
+
+Students often hear the phrase:
+
+\[
+\textit{``Python passes lists by reference.''}
+\]
+
+This is not quite correct.
+
+\section{The Common Misconception}
+
+Suppose we have:
+
+\begin{lstlisting}[language=Python]
+numbers = [1, 2, 3, 4, 5]
+\end{lstlisting}
+
+and:
+
+\begin{lstlisting}[language=Python]
+def change_numbers(nums):
+
+    nums[0] = 7
+\end{lstlisting}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+change_numbers(numbers)
+
+print(numbers)
+\end{lstlisting}
+
+produces:
+
+\begin{lstlisting}
+[7, 2, 3, 4, 5]
+\end{lstlisting}
+
+Many people incorrectly conclude that Python uses pass-by-reference.
+
+\section{What is Actually Happening}
+
+The important distinction is:
+
+\begin{itemize}
+    \item the list itself exists as a mutable object in memory,
+    \item the function receives a copy of the reference,
+    \item both variables point to the same underlying object.
+\end{itemize}
+
+The variables themselves are still separate variables.
+
+\section{Mutable vs Immutable Objects}
+
+This behavior depends heavily on mutability.
+
+\subsection{Immutable Objects}
+
+Examples:
+
+\begin{itemize}
+    \item integers
+    \item floats
+    \item strings
+    \item tuples
+\end{itemize}
+
+cannot be modified in-place.
+
+\subsection{Mutable Objects}
+
+Examples:
+
+\begin{itemize}
+    \item lists
+    \item dictionaries
+    \item sets
+\end{itemize}
+
+can be modified in-place.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Functions help organize and reuse code.
+
+    \item Arguments pass information into functions.
+
+    \item Return values pass information back out.
+
+    \item Python primarily behaves like pass-by-value.
+
+    \item Mutable objects can create reference-sharing behavior.
+
+    \item Scope determines where variables exist and have meaning.
+
+    \item Python uses dynamic typing.
+\end{itemize}
+
+\end{document}
