@@ -1,0 +1,266 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,enumitem,listings,xcolor,hyperref}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Class Constructors}
+\author{Edward Brash}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Review}
+
+In the previous class examples, the constructor was kept as simple as possible.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+def __init__(self):
+    self.name = "none"
+    self.rating = -1
+    self.price = "none"
+    self.cuisine = "none"
+\end{lstlisting}
+
+This constructor creates an object and assigns default values to all member variables.
+
+That works, but it is not always convenient.
+
+\section{The Problem}
+
+Often, when we create an object, we already know some or all of the information that should go inside it.
+
+For example, rather than writing:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant()
+
+moes.set_name("Moe's")
+moes.set_rating(3)
+moes.set_price("***")
+moes.set_cuisine("Mexican")
+\end{lstlisting}
+
+it would be nicer to write:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", 3, "***", "Mexican")
+\end{lstlisting}
+
+This is possible by adding parameters to the constructor.
+
+\section{Constructor Parameters}
+
+We can define the constructor as:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self, name, rating, price, cuisine):
+        self.name = name
+        self.rating = rating
+        self.price = price
+        self.cuisine = cuisine
+\end{lstlisting}
+
+Now the object can be initialized directly:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", 3, "***", "Mexican")
+\end{lstlisting}
+
+\section{Important Notes}
+
+\subsection{Parameter Names}
+
+It is common to use the same names for constructor parameters and instance attributes:
+
+\begin{lstlisting}[language=Python]
+def __init__(self, name, rating, price, cuisine):
+    self.name = name
+    self.rating = rating
+    self.price = price
+    self.cuisine = cuisine
+\end{lstlisting}
+
+This is not a conflict.
+
+The name on the right side is the parameter. The name on the left side after \verb|self.| is the instance attribute.
+
+\subsection{Documentation}
+
+It is good practice to include documentation explaining the parameters.
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+    # Represents a restaurant.
+    #
+    # Parameters:
+    #     name: Name of the restaurant.
+    #     rating: Rating from 1 to 10.
+    #     price: Price category such as "$", "$$", or "$$$".
+    #     cuisine: Type of cuisine.
+\end{lstlisting}
+
+This documentation can be viewed using:
+
+\begin{lstlisting}[language=Python]
+help(Restaurant)
+\end{lstlisting}
+
+\section{Default Constructor Values}
+
+Sometimes we want to provide default values for some constructor arguments.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self, name, cuisine, rating=-1, price="none"):
+        self.name = name
+        self.cuisine = cuisine
+        self.rating = rating
+        self.price = price
+\end{lstlisting}
+
+Now we can write:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", "Mexican")
+\end{lstlisting}
+
+and the object will use default values for \verb|rating| and \verb|price|.
+
+\section{Important Rule About Defaults}
+
+Non-default parameters must come before default parameters.
+
+This is valid:
+
+\begin{lstlisting}[language=Python]
+def __init__(self, name, cuisine, rating=-1, price="none"):
+\end{lstlisting}
+
+This is not valid:
+
+\begin{lstlisting}[language=Python]
+def __init__(self, name="none", cuisine, rating=-1):
+\end{lstlisting}
+
+Python needs all required parameters first, followed by optional parameters.
+
+\section{Overriding Default Values}
+
+Default values are convenient, but they can still be overridden.
+
+\begin{lstlisting}[language=Python]
+panera = Restaurant("Panera", "Soups and Sandwiches", 4, "$$$")
+five_guys = Restaurant("Five Guys", "Burgers", 10, "$$$$$")
+\end{lstlisting}
+
+These calls supply explicit values for all fields.
+
+\section{Best Practice: Give Defaults to All Member Variables}
+
+A common design choice is to make sure every member variable has a reasonable value after construction.
+
+This prevents partially initialized objects.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self, name="none", cuisine="none",
+                 rating=-1, price="none"):
+        self.name = name
+        self.cuisine = cuisine
+        self.rating = rating
+        self.price = price
+\end{lstlisting}
+
+Then all of the following make sense:
+
+\begin{lstlisting}[language=Python]
+Restaurant()
+Restaurant("Moe's")
+Restaurant("Moe's", "Fake Mex")
+Restaurant("Moe's", "Fake Mex", 6)
+Restaurant("Moe's", "Fake Mex", 6, "$$")
+\end{lstlisting}
+
+\section{Internal Helper Methods}
+
+Another best practice is to use an underscore to indicate methods that are intended to be internal.
+
+For example, suppose we define a rectangle:
+
+\begin{lstlisting}[language=Python]
+class Rectangle:
+
+    def __init__(self, length=1, width=1):
+        self.length = length
+        self.width = width
+
+    def _get_area(self):
+        return self.length * self.width
+
+    def resize(self, new_length):
+        area = self._get_area()
+        self.length = new_length
+        self.width = area / new_length
+
+    def print_rectangle(self):
+        print(f"Length: {self.length:.3f}")
+        print(f"Width: {self.width:.3f}")
+        print(f"Area: {self._get_area():.3f}")
+\end{lstlisting}
+
+The method \verb|_get_area()| is still technically accessible from outside the class, but the underscore indicates:
+
+\begin{quote}
+This method is intended for internal use.
+\end{quote}
+
+\section{A Note About Naming Conventions}
+
+When we see a method beginning with an underscore, such as:
+
+\begin{lstlisting}[language=Python]
+_get_area()
+\end{lstlisting}
+
+we should not assume it is magical or special.
+
+It is mostly a convention.
+
+Python programmers use this convention to communicate design intent.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Constructors initialize objects.
+    \item Constructors can take parameters.
+    \item Parameter values can be assigned to instance attributes.
+    \item Default parameter values make object creation more flexible.
+    \item Required parameters must come before default parameters.
+    \item Documentation helps users understand constructor parameters.
+    \item Leading underscores indicate internal-use methods by convention.
+\end{itemize}
+
+\end{document}

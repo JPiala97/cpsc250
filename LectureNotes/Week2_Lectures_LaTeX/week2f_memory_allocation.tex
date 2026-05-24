@@ -1,0 +1,393 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Memory Allocation and Garbage Collection}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Memory management is one of the most important concepts in computer science.
+
+Many programming languages require the programmer to manually allocate and free memory.
+
+Python attempts to automate much of this process.
+
+However, understanding what is happening internally is still extremely valuable.
+
+\section{Two Philosophies}
+
+There are two common approaches to memory management.
+
+\subsection{Approach 1}
+
+\begin{quote}
+Trust Python completely.
+\end{quote}
+
+In this approach, we simply allow Python to:
+
+\begin{itemize}
+    \item allocate memory,
+    \item track objects,
+    \item deallocate unused objects.
+\end{itemize}
+
+\subsection{Approach 2}
+
+\begin{quote}
+Understand the system at a deeper level.
+\end{quote}
+
+Even though Python automates memory management, understanding the underlying model helps us:
+
+\begin{itemize}
+    \item write better code,
+    \item debug difficult problems,
+    \item understand performance,
+    \item understand why memory leaks occur.
+\end{itemize}
+
+\section{The Stack and the Heap}
+
+Programs typically use two major memory regions.
+
+\subsection{The Stack}
+
+The stack is:
+
+\begin{itemize}
+    \item highly ordered,
+    \item fast,
+    \item used for local variables and function calls.
+\end{itemize}
+
+The stack behaves somewhat like a stack of plates.
+
+\subsection{The Heap}
+
+The heap is:
+
+\begin{itemize}
+    \item less ordered,
+    \item more flexible,
+    \item used for dynamically allocated objects.
+\end{itemize}
+
+The heap behaves more like a pile of objects spread around memory.
+
+\section{CPython and the Virtual Machine}
+
+Python programs are executed by the Python virtual machine.
+
+The most common implementation is:
+
+\[
+\text{CPython}
+\]
+
+CPython handles much of the memory management automatically.
+
+Languages using similar models include:
+
+\begin{itemize}
+    \item Python,
+    \item Java,
+    \item C\#,
+    \item Perl,
+    \item Ruby,
+    \item Lua.
+\end{itemize}
+
+\section{All Python Objects Live on the Heap}
+
+In CPython, essentially all Python objects are stored on the heap.
+
+This includes:
+
+\begin{itemize}
+    \item integers,
+    \item floats,
+    \item strings,
+    \item lists,
+    \item dictionaries,
+    \item user-defined objects.
+\end{itemize}
+
+\section{Reference Counting}
+
+CPython keeps track of how many variables refer to each object.
+
+This is called the \textbf{reference count}.
+
+When an object is created:
+
+\begin{itemize}
+    \item memory is allocated on the heap,
+    \item the object's reference count is initialized.
+\end{itemize}
+
+\section{Garbage Collection}
+
+When the reference count of an object falls to zero:
+
+\begin{itemize}
+    \item the object is no longer accessible,
+    \item its memory can be reclaimed.
+\end{itemize}
+
+This process is called garbage collection.
+
+\section{Example Class}
+
+\begin{lstlisting}[language=Python]
+class Test:
+
+    def __init__(self, name):
+        self.name = name
+
+    def __del__(self):
+        print(f"Deleting {self.name}")
+\end{lstlisting}
+
+The method:
+
+\begin{lstlisting}[language=Python]
+__del__()
+\end{lstlisting}
+
+is called when the object is destroyed.
+
+\section{Example Program}
+
+\begin{lstlisting}[language=Python]
+if __name__ == "__main__":
+
+    print("Discarded object creation")
+    Test("hello1")
+
+    print("Saved object creation")
+    my_list = Test("hello2")
+
+    print("Program done")
+\end{lstlisting}
+
+\section{What Happens?}
+
+\subsection{Case 1}
+
+\begin{lstlisting}[language=Python]
+Test("hello1")
+\end{lstlisting}
+
+creates an object on the heap, but no variable stores a reference to it.
+
+Therefore:
+
+\begin{itemize}
+    \item reference count quickly falls to zero,
+    \item the object becomes garbage collectable almost immediately.
+\end{itemize}
+
+\subsection{Case 2}
+
+\begin{lstlisting}[language=Python]
+my_list = Test("hello2")
+\end{lstlisting}
+
+stores a reference to the object.
+
+Therefore the object remains allocated until the reference disappears.
+
+\section{Reference Counting Example with Strings}
+
+Consider:
+
+\begin{lstlisting}[language=Python]
+s1 = "Python"
+s2 = "Computer Science"
+s3 = s2
+
+s1 = "Zybooks"
+s2 = s1
+\end{lstlisting}
+
+\section{Step-by-Step Interpretation}
+
+Initially:
+
+\begin{lstlisting}[language=Python]
+s1 = "Python"
+\end{lstlisting}
+
+creates a string object on the heap with reference count 1.
+
+Then:
+
+\begin{lstlisting}[language=Python]
+s2 = "Computer Science"
+\end{lstlisting}
+
+creates another string object.
+
+Next:
+
+\begin{lstlisting}[language=Python]
+s3 = s2
+\end{lstlisting}
+
+causes both \verb|s2| and \verb|s3| to refer to the same object.
+
+The reference count for \verb|"Computer Science"| increases to 2.
+
+\section{Reassignment}
+
+Now consider:
+
+\begin{lstlisting}[language=Python]
+s1 = "Zybooks"
+\end{lstlisting}
+
+The old string \verb|"Python"| loses its reference.
+
+If no references remain, its reference count becomes zero and it may be garbage collected.
+
+\section{The Garbage Collector Module}
+
+Python includes a garbage collection module:
+
+\begin{lstlisting}[language=Python]
+import gc
+\end{lstlisting}
+
+We can inspect tracked objects:
+
+\begin{lstlisting}[language=Python]
+gc_objects = gc.get_objects()
+
+print(len(gc_objects))
+\end{lstlisting}
+
+This can help analyze memory behavior.
+
+\section{Circular References}
+
+Reference counting works well most of the time.
+
+However, circular references can cause problems.
+
+\section{Dog and Cat Example}
+
+Suppose we define:
+
+\begin{lstlisting}[language=Python]
+class Dog:
+
+    def __init__(self, name, cousin=None):
+        self.name = name
+        self.cousin = cousin
+
+
+class Cat:
+
+    def __init__(self, name, cousin=None):
+        self.name = name
+        self.cousin = cousin
+\end{lstlisting}
+
+Now:
+
+\begin{lstlisting}[language=Python]
+bailey = Dog("Bailey")
+misty = Cat("Misty", bailey)
+
+bailey.cousin = misty
+\end{lstlisting}
+
+creates a circular reference.
+
+\section{The Problem}
+
+Now:
+
+\begin{itemize}
+    \item Bailey refers to Misty,
+    \item Misty refers to Bailey.
+\end{itemize}
+
+Even if we delete one variable:
+
+\begin{lstlisting}[language=Python]
+del bailey
+\end{lstlisting}
+
+the objects may still refer to each other internally.
+
+Their reference counts may never fall to zero.
+
+\section{Memory Leaks}
+
+This situation can create a memory leak.
+
+A memory leak occurs when memory remains allocated even though the programmer no longer intends to use it.
+
+\section{Breaking the Circular Reference}
+
+One solution is to manually remove the reference:
+
+\begin{lstlisting}[language=Python]
+misty.cousin = None
+\end{lstlisting}
+
+Now the reference cycle is broken.
+
+\section{Why This Matters}
+
+Programs that repeatedly leak memory may eventually:
+
+\begin{itemize}
+    \item slow down,
+    \item consume large amounts of RAM,
+    \item crash.
+\end{itemize}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Python automatically manages most memory allocation.
+    \item CPython uses reference counting.
+    \item Objects live on the heap.
+    \item The stack and heap serve different purposes.
+    \item Objects with zero references may be garbage collected.
+    \item Circular references can cause memory leaks.
+    \item The \verb|gc| module can help inspect memory behavior.
+\end{itemize}
+
+\end{document}

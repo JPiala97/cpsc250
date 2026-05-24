@@ -1,0 +1,309 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,enumitem,listings,xcolor,hyperref}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Classes and Objects}
+\author{Edward Brash}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Object-Oriented Programming}
+
+Object-oriented programming is a style of programming based on the idea that a program can be organized around objects.
+
+An object combines:
+
+\begin{itemize}
+    \item data,
+    \item functions that operate on that data,
+    \item and rules for how outside code should interact with that data.
+\end{itemize}
+
+This gives us a powerful way to manage complexity.
+
+\section{Concept 1: Encapsulation}
+
+One of the central ideas of object-oriented programming is \textbf{encapsulation}.
+
+Encapsulation means hiding internal variables from the user and requiring the user to interact with an object through well-defined methods.
+
+\subsection{Why Encapsulation Is Good}
+
+Encapsulation helps with:
+
+\begin{itemize}
+    \item maintenance,
+    \item debugging,
+    \item team software development,
+    \item changing internal implementation details without breaking user code.
+\end{itemize}
+
+The idea is that the user of a class should not need to know exactly how the class works internally.
+
+They should only need to know how to use its public methods.
+
+\section{Good and Bad Design}
+
+Good design hides unnecessary details.
+
+Bad design exposes too much internal structure and forces users to depend on details that should not matter.
+
+A good object acts like a carefully designed interface.
+
+\begin{quote}
+The user should interact with the object through functions, not by manually changing internal data.
+\end{quote}
+
+\section{Objects and Classes}
+
+\subsection{Objects}
+
+An object is a grouping of variables and functions that act on those variables.
+
+\subsection{Classes}
+
+A class is a template used to create objects.
+
+A class defines:
+
+\begin{itemize}
+    \item what variables an object will contain,
+    \item what functions operate on those variables,
+    \item and how the object should behave.
+\end{itemize}
+
+In this sense, a class is the DNA of object-oriented programming.
+
+\section{Example: A Restaurant Object}
+
+Suppose we want to build a restaurant rating system, similar in spirit to Yelp.
+
+For each restaurant, we might want to store:
+
+\begin{center}
+\begin{tabular}{clc}
+\toprule
+Information & Example & Type \\
+\midrule
+Name & Moe's & string \\
+Rating & 7 & integer \\
+Price & *** & string \\
+Cuisine type & Mexican & string \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In addition, we might want functions that act on those variables:
+
+\begin{itemize}
+    \item set the name,
+    \item get the name,
+    \item set the rating,
+    \item get the rating,
+    \item set the price,
+    \item get the price,
+    \item set the cuisine,
+    \item get the cuisine,
+    \item print a report.
+\end{itemize}
+
+\section{Defining a Restaurant Class}
+
+A first version of the class might look like this:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self):
+        self.name = "none"
+        self.rating = -1
+        self.price = "none"
+        self.cuisine = "none"
+
+    def set_name(self, user_name):
+        self.name = user_name
+
+    def get_name(self):
+        return self.name
+
+    def set_rating(self, user_rating):
+        self.rating = user_rating
+
+    def get_rating(self):
+        return self.rating
+
+    def set_price(self, user_price):
+        self.price = user_price
+
+    def get_price(self):
+        return self.price
+
+    def set_cuisine(self, user_cuisine):
+        self.cuisine = user_cuisine
+
+    def get_cuisine(self):
+        return self.cuisine
+
+    def print_info(self):
+        print("Restaurant Information")
+        print(f"Name: {self.name}")
+        print(f"Rating: {self.rating}")
+        print(f"Price: {self.price}")
+        print(f"Cuisine Type: {self.cuisine}")
+\end{lstlisting}
+
+\section{Using the Class}
+
+In the main program, we can create an object:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant()
+\end{lstlisting}
+
+Then we can interact with the object using methods:
+
+\begin{lstlisting}[language=Python]
+moes.set_name("Moe's")
+moes.set_rating(7)
+moes.set_price("***")
+moes.set_cuisine("Mexican")
+
+moes.print_info()
+\end{lstlisting}
+
+\section{The Constructor}
+
+The method:
+
+\begin{lstlisting}[language=Python]
+def __init__(self):
+\end{lstlisting}
+
+is called the constructor.
+
+It is called automatically whenever a new object of the class is created.
+
+\section{The Meaning of self}
+
+Every method in a class usually has \verb|self| as the first parameter.
+
+The variable \verb|self| refers to the particular object that is calling the method.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+moes.set_name("Moe's")
+\end{lstlisting}
+
+means that inside \verb|set_name|, \verb|self| refers to \verb|moes|.
+
+Thus:
+
+\begin{lstlisting}[language=Python]
+self.name = user_name
+\end{lstlisting}
+
+means:
+
+\begin{quote}
+Set the name belonging to this particular object.
+\end{quote}
+
+\section{Public Access vs Good Practice}
+
+In Python, instance variables are technically public unless special naming conventions are used.
+
+That means it is possible to write:
+
+\begin{lstlisting}[language=Python]
+print(moes.name)
+\end{lstlisting}
+
+However, this is bad practice in introductory object-oriented design.
+
+Instead, prefer:
+
+\begin{lstlisting}[language=Python]
+print(moes.get_name())
+\end{lstlisting}
+
+and:
+
+\begin{lstlisting}[language=Python]
+moes.set_name("Moe's")
+\end{lstlisting}
+
+This preserves encapsulation.
+
+\section{Instance Attributes}
+
+Variables such as:
+
+\begin{itemize}
+    \item \verb|self.name|,
+    \item \verb|self.rating|,
+    \item \verb|self.price|,
+    \item \verb|self.cuisine|
+\end{itemize}
+
+are called \textbf{instance attributes}.
+
+They belong to each individual object.
+
+\section{Class Attributes}
+
+A class attribute belongs to the class as a whole rather than to a single object.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+class MarathonRunner:
+
+    race_distance = 42.195
+
+    def __init__(self):
+        self.name = "none"
+        self.time = 0.0
+\end{lstlisting}
+
+Here, \verb|race_distance| applies to all marathon runners.
+
+\begin{lstlisting}[language=Python]
+runner1 = MarathonRunner()
+runner2 = MarathonRunner()
+
+print(runner1.race_distance)
+print(runner2.race_distance)
+print(MarathonRunner.race_distance)
+\end{lstlisting}
+
+All three print the same class-level value.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item A class is a template for creating objects.
+    \item An object contains data and methods.
+    \item Encapsulation hides internal details.
+    \item Constructors initialize objects.
+    \item \verb|self| refers to the current object.
+    \item Instance attributes belong to individual objects.
+    \item Class attributes belong to the class as a whole.
+\end{itemize}
+
+\end{document}

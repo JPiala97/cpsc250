@@ -1,0 +1,296 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Craps Game Odds}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Motivation}
+
+The craps-style dice game used in the class example has an interesting property:
+
+\begin{quote}
+The probability of winning one credit is exactly equal to the probability of losing one credit.
+\end{quote}
+
+That is:
+
+\[
+P(+1) = P(-1) = \frac{1}{2}
+\]
+
+This means the game behaves like a random walk.
+
+\section{Game Rules}
+
+On the initial roll:
+
+\begin{itemize}
+    \item rolling 7 or 11 wins one credit;
+    \item rolling 3 or 12 loses one credit;
+    \item any other roll sets a goal and requires more rolling.
+\end{itemize}
+
+On later rolls:
+
+\begin{itemize}
+    \item rolling 7 loses one credit;
+    \item rolling the goal wins one credit;
+    \item anything else means roll again.
+\end{itemize}
+
+\section{Initial Roll Probabilities}
+
+The number of possible outcomes when rolling two dice is:
+
+\[
+36
+\]
+
+The probabilities of common sums are:
+
+\[
+P(7) = \frac{6}{36} = \frac{1}{6}
+\]
+
+\[
+P(11) = \frac{2}{36} = \frac{1}{18}
+\]
+
+\[
+P(3) = \frac{2}{36} = \frac{1}{18}
+\]
+
+\[
+P(12) = \frac{1}{36}
+\]
+
+Therefore:
+
+\[
+P(7 \text{ or } 11) = \frac{1}{6} + \frac{1}{18}
+= \frac{4}{18}
+= \frac{2}{9}
+\]
+
+and:
+
+\[
+P(3 \text{ or } 12) = \frac{1}{18} + \frac{1}{36}
+= \frac{3}{36}
+= \frac{1}{12}
+\]
+
+\section{Re-Roll Cases}
+
+If the initial roll is neither an immediate win nor an immediate loss, the game enters a re-roll state.
+
+For the simplified version in the notes, this leads to a repeated process:
+
+\begin{itemize}
+    \item some rolls end the round,
+    \item some rolls continue the round.
+\end{itemize}
+
+The repeated continuation creates a geometric series.
+
+\section{Geometric Series Review}
+
+A geometric series has the form:
+
+\[
+a + ar + ar^2 + ar^3 + \cdots
+\]
+
+If \(|r| < 1\), then:
+
+\[
+a + ar + ar^2 + ar^3 + \cdots = \frac{a}{1-r}
+\]
+
+Equivalently:
+
+\[
+\sum_{n=0}^{\infty} ar^n = \frac{a}{1-r}
+\]
+
+\section{Probability of Eventually Winning}
+
+The notes derive the probability of winning as a sum involving immediate wins plus delayed wins.
+
+The structure is:
+
+\[
+P(+1) = \text{immediate win} + \text{delayed win}
+\]
+
+The delayed portion includes the possibility of rolling again and again before eventually ending the round.
+
+This repeated structure is exactly why a geometric series appears.
+
+\section{Final Result}
+
+After simplifying the geometric series, the result is:
+
+\[
+P(+1) = \frac{1}{2}
+\]
+
+Similarly:
+
+\[
+P(-1) = \frac{1}{2}
+\]
+
+Since every completed round either wins or loses one credit,
+
+\[
+P(+1) + P(-1) = 1
+\]
+
+and therefore, once one probability is known to be \(1/2\), the other must also be \(1/2\).
+
+\section{Interpretation}
+
+The game is fair in the sense that:
+
+\[
+P(+1) = P(-1)
+\]
+
+But this does not mean the game lasts forever.
+
+The player's credits move up and down like a random walk until eventually reaching zero.
+
+\section{Random Walk Model}
+
+If the player begins with some number of credits, then after each round:
+
+\[
+\text{credits} \rightarrow \text{credits} + 1
+\]
+
+with probability \(1/2\), or:
+
+\[
+\text{credits} \rightarrow \text{credits} - 1
+\]
+
+with probability \(1/2\).
+
+The game ends when:
+
+\[
+\text{credits} = 0
+\]
+
+\section{Simulation Philosophy}
+
+The notes then transition from probability to simulation.
+
+Instead of only solving analytically, we can simulate the game many times.
+
+The idea is:
+
+\begin{enumerate}
+    \item Run the game to completion many times.
+    \item Record the number of rounds in each game.
+    \item Record credits as a function of round number.
+    \item Use those results for analysis and plotting.
+\end{enumerate}
+
+\section{Data Structures for Simulation}
+
+For many simulations, we might use lists such as:
+
+\begin{lstlisting}[language=Python]
+credit_result = []
+round_result = []
+result_number = []
+\end{lstlisting}
+
+For each simulated game, we append:
+
+\begin{itemize}
+    \item the list of credit values,
+    \item the list of round numbers,
+    \item the final number of rounds.
+\end{itemize}
+
+\section{Simulation Loop}
+
+A simplified structure is:
+
+\begin{lstlisting}[language=Python]
+num_sims = 1000
+
+credit_result = []
+round_result = []
+result_number = []
+
+for i in range(num_sims):
+
+    credit_round = []
+    result_round = []
+
+    # run one complete game here
+
+    round_result.append(result_round)
+    credit_result.append(credit_round)
+    result_number.append(rounds)
+\end{lstlisting}
+
+\section{Why This Matters}
+
+This example connects several important ideas:
+
+\begin{itemize}
+    \item probability,
+    \item loops,
+    \item lists of lists,
+    \item simulations,
+    \item plotting,
+    \item random walks.
+\end{itemize}
+
+It also gives a real reason to store data during a simulation.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item The dice game has equal probabilities of winning or losing one credit.
+    \item Repeated re-rolls naturally lead to geometric series.
+    \item The game behaves like a random walk.
+    \item Simulations can be used to study behavior that is difficult to understand from a single run.
+    \item Lists are useful for storing simulation histories.
+\end{itemize}
+
+\end{document}

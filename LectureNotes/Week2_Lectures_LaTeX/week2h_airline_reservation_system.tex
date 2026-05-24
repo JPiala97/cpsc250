@@ -1,0 +1,291 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Airline Seat Reservation System}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Program Goal}
+
+In this example, we design a simple airline seat reservation system.
+
+The goal is to use classes and objects to model seats on an airplane.
+
+Suppose the airplane has five seats. We will create a list containing five \texttt{Seat} objects.
+
+\section{Step 1: Identify Internal Variables}
+
+For each seat reservation, we want to store:
+
+\begin{enumerate}
+    \item first name,
+    \item last name,
+    \item amount paid.
+\end{enumerate}
+
+These become the internal variables of the class.
+
+\section{Step 2: Identify Class Methods}
+
+The \texttt{Seat} class should provide methods that allow us to:
+
+\begin{enumerate}
+    \item reserve a seat,
+    \item unreserve a seat,
+    \item check whether the seat is empty,
+    \item print seat information.
+\end{enumerate}
+
+The user should not directly manipulate the internal variables.
+
+Instead, the user should interact with the object through methods.
+
+\section{The Seat Class}
+
+A reasonable \texttt{Seat} class is:
+
+\begin{lstlisting}[language=Python]
+class Seat:
+
+    def __init__(self):
+        self.first_name = ""
+        self.last_name = ""
+        self.amount_paid = 0.0
+
+    def reserve(self, first_name, last_name, amount_paid):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.amount_paid = amount_paid
+
+    def unreserve(self):
+        self.first_name = ""
+        self.last_name = ""
+        self.amount_paid = 0.0
+
+    def is_empty(self):
+        return self.first_name == "" and self.last_name == ""
+
+    def print_seat(self):
+        print(self.first_name, self.last_name, self.amount_paid)
+\end{lstlisting}
+
+\section{Creating Seat Objects}
+
+Suppose:
+
+\begin{lstlisting}[language=Python]
+num_seats = 5
+available_seats = []
+\end{lstlisting}
+
+We can create five seat objects using a loop:
+
+\begin{lstlisting}[language=Python]
+for i in range(num_seats):
+    available_seats.append(Seat())
+\end{lstlisting}
+
+Now \texttt{available\_seats} is a list of objects:
+
+\begin{lstlisting}[language=Python]
+[Seat(), Seat(), Seat(), Seat(), Seat()]
+\end{lstlisting}
+
+Initially, all seats are empty.
+
+\section{Lists of Objects}
+
+This is an important idea:
+
+\begin{quote}
+A list can contain objects, not just primitive values.
+\end{quote}
+
+Each element of the list is a separate \texttt{Seat} object.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+available_seats[0]
+\end{lstlisting}
+
+is the first seat object.
+
+\begin{lstlisting}[language=Python]
+available_seats[0].is_empty()
+\end{lstlisting}
+
+calls the \texttt{is\_empty()} method for the first seat.
+
+\section{Printing Seat Status}
+
+We can write a function to print the current status of all seats.
+
+\begin{lstlisting}[language=Python]
+def print_seats(seats):
+
+    seat_status = []
+
+    for i in range(len(seats)):
+        seat_status.append(seats[i].is_empty())
+
+    print("Current seat status")
+    print(seat_status)
+\end{lstlisting}
+
+Initially this might print:
+
+\begin{lstlisting}
+[True, True, True, True, True]
+\end{lstlisting}
+
+because all seats are empty.
+
+\section{Printing the Passenger List}
+
+We can also print only the seats that are occupied.
+
+\begin{lstlisting}[language=Python]
+def print_passenger_list(seats):
+
+    for i in range(len(seats)):
+
+        if not seats[i].is_empty():
+
+            print(f"{i}: ", end="")
+            seats[i].print_seat()
+\end{lstlisting}
+
+This demonstrates method calls on objects stored in a list.
+
+\section{Menu Driver}
+
+A menu driver repeatedly asks the user what task to perform.
+
+The options are:
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+Command & Meaning \\
+\midrule
+\texttt{p} & print the seat status \\
+\texttt{l} & print the passenger list \\
+\texttt{r} & reserve a new seat \\
+\texttt{q} & quit \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Menu Loop}
+
+\begin{lstlisting}[language=Python]
+command = input("Enter command: ")
+
+while command != "q":
+
+    if command == "p":
+        print_seats(available_seats)
+
+    elif command == "l":
+        print_passenger_list(available_seats)
+
+    elif command == "r":
+        reserve_seat(available_seats)
+
+    else:
+        print("Invalid command")
+
+    command = input("Enter command: ")
+\end{lstlisting}
+
+\section{Reserving a Seat}
+
+The \texttt{reserve\_seat()} function asks for a seat number and passenger information.
+
+\begin{lstlisting}[language=Python]
+def reserve_seat(seats):
+
+    seat_num = int(input("Enter seat number: "))
+
+    if not seats[seat_num].is_empty():
+
+        print("Seat not empty")
+
+    else:
+
+        first_name = input("Enter first name: ")
+        last_name = input("Enter last name: ")
+        paid = float(input("Enter amount paid: "))
+
+        seats[seat_num].reserve(first_name, last_name, paid)
+\end{lstlisting}
+
+\section{Complete Main Program}
+
+\begin{lstlisting}[language=Python]
+num_seats = 5
+available_seats = []
+
+for i in range(num_seats):
+    available_seats.append(Seat())
+
+command = input("Enter command: ")
+
+while command != "q":
+
+    if command == "p":
+        print_seats(available_seats)
+
+    elif command == "l":
+        print_passenger_list(available_seats)
+
+    elif command == "r":
+        reserve_seat(available_seats)
+
+    else:
+        print("Invalid command")
+
+    command = input("Enter command: ")
+\end{lstlisting}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Classes are useful for modeling real-world objects.
+    \item A seat object stores passenger information.
+    \item Lists can store objects.
+    \item Functions can receive lists of objects as arguments.
+    \item Menu-driven programs use loops and branching.
+    \item Encapsulation keeps object data organized and controlled.
+\end{itemize}
+
+\end{document}

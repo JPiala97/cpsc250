@@ -1,0 +1,363 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Class Customization}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+One of the most common things we want to do with an object is print information about it.
+
+For example, suppose we have:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", "Mexican")
+\end{lstlisting}
+
+It would be convenient if we could simply write:
+
+\begin{lstlisting}[language=Python]
+print(moes)
+\end{lstlisting}
+
+and automatically obtain useful information about the object.
+
+Python provides a special mechanism for doing exactly this.
+
+\section{The \texttt{\_\_str\_\_()} Method}
+
+Python classes can define a special method:
+
+\begin{lstlisting}[language=Python]
+def __str__(self):
+\end{lstlisting}
+
+This method tells Python how the object should appear when printed.
+
+The method should return a string.
+
+Example:
+
+\begin{lstlisting}[language=Python]
+def __str__(self):
+    return f"{self.name} ({self.cuisine})"
+\end{lstlisting}
+
+\section{Automatic Behavior}
+
+Suppose we define:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self, name, cuisine):
+        self.name = name
+        self.cuisine = cuisine
+
+    def __str__(self):
+        return f"{self.name} ({self.cuisine})"
+\end{lstlisting}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", "Mexican")
+
+print(moes)
+\end{lstlisting}
+
+automatically calls:
+
+\begin{lstlisting}[language=Python]
+moes.__str__()
+\end{lstlisting}
+
+behind the scenes.
+
+\section{Important Note}
+
+The \verb|__str__| method must return a single string.
+
+It does not directly print the information itself.
+
+Bad design:
+
+\begin{lstlisting}[language=Python]
+def __str__(self):
+    print(self.name)
+\end{lstlisting}
+
+Correct design:
+
+\begin{lstlisting}[language=Python]
+def __str__(self):
+    return self.name
+\end{lstlisting}
+
+The returned string is then sent to the \verb|print()| statement.
+
+\section{Benefits of \texttt{\_\_str\_\_()}}
+
+The \verb|__str__| method makes objects easier to work with.
+
+Advantages include:
+
+\begin{itemize}
+    \item cleaner debugging,
+    \item easier printing,
+    \item more readable output,
+    \item more professional object design.
+\end{itemize}
+
+\section{Example}
+
+Suppose we define:
+
+\begin{lstlisting}[language=Python]
+class Restaurant:
+
+    def __init__(self, name, cuisine):
+        self.name = name
+        self.cuisine = cuisine
+
+    def __str__(self):
+        return f"Restaurant: {self.name}, Cuisine: {self.cuisine}"
+\end{lstlisting}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant("Moe's", "Mexican")
+
+print(moes)
+\end{lstlisting}
+
+produces:
+
+\begin{lstlisting}
+Restaurant: Moe's, Cuisine: Mexican
+\end{lstlisting}
+
+\section{Customizing Objects}
+
+This is our first example of \textbf{class customization}.
+
+Python allows us to redefine how many built-in operations behave for our own classes.
+
+This leads naturally to operator overloading.
+
+\section{Transition to Operator Overloading}
+
+A natural question is:
+
+\begin{quote}
+What does it mean to add two objects together?
+\end{quote}
+
+For example:
+
+\begin{lstlisting}[language=Python]
+moes = Restaurant()
+panera = Restaurant()
+
+fusion = moes + panera
+\end{lstlisting}
+
+What should that mean?
+
+The answer depends on the class.
+
+For our own classes, we can define the rules ourselves.
+
+\section{Algebra and Operators}
+
+Algebra is really a set of rules for manipulating symbols and objects.
+
+Operators include:
+
+\begin{itemize}
+    \item arithmetic operators:
+    \[
+    +, -, *, /, \%
+    \]
+
+    \item comparison operators:
+    \[
+    <, >, <=, >=, ==, !=
+    \]
+\end{itemize}
+
+Python allows us to redefine these operators for our own classes.
+
+\section{Example: A Time Class}
+
+Suppose we define a \verb|Time| class:
+
+\begin{lstlisting}[language=Python]
+class Time:
+
+    def __init__(self, hours, minutes):
+        self.hours = hours
+        self.minutes = minutes
+
+    def __str__(self):
+        return f"{self.hours}:{self.minutes}"
+\end{lstlisting}
+
+Now we can print time objects naturally.
+
+\begin{lstlisting}[language=Python]
+t1 = Time(10, 40)
+
+print(t1)
+\end{lstlisting}
+
+\section{Comparison Operators}
+
+Suppose we want to compare two time objects.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+time1 < time2
+\end{lstlisting}
+
+Python does not automatically know how to compare two custom objects.
+
+We must define the comparison ourselves.
+
+\section{The \texttt{\_\_lt\_\_()} Method}
+
+The special method:
+
+\begin{lstlisting}[language=Python]
+def __lt__(self, other):
+\end{lstlisting}
+
+defines the meaning of the less-than operator:
+
+\[
+<
+\]
+
+for objects of the class.
+
+\section{Example Implementation}
+
+\begin{lstlisting}[language=Python]
+class Time:
+
+    def __init__(self, hours, minutes):
+        self.hours = hours
+        self.minutes = minutes
+
+    def __str__(self):
+        return f"{self.hours}:{self.minutes}"
+
+    def __lt__(self, other):
+
+        if self.hours < other.hours:
+            return True
+
+        elif self.hours == other.hours:
+
+            if self.minutes < other.minutes:
+                return True
+
+        return False
+\end{lstlisting}
+
+\section{Using the Comparison}
+
+Now suppose:
+
+\begin{lstlisting}[language=Python]
+time1 = Time(10, 40)
+time2 = Time(12, 15)
+time3 = Time(9, 15)
+\end{lstlisting}
+
+We can search for the earliest time:
+
+\begin{lstlisting}[language=Python]
+min_time = time1
+
+if time2 < min_time:
+    min_time = time2
+
+if time3 < min_time:
+    min_time = time3
+
+print(f"Earliest time is {min_time}")
+\end{lstlisting}
+
+Because we defined \verb|__lt__|, Python now knows how to compare Time objects.
+
+\section{Rich Comparison Operators}
+
+Python provides several comparison customization methods.
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Method & Operator \\
+\midrule
+\verb|__lt__| & < \\
+\verb|__le__| & <= \\
+\verb|__gt__| & > \\
+\verb|__ge__| & >= \\
+\verb|__eq__| & == \\
+\verb|__ne__| & != \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Important Warning}
+
+Some comparison methods have default behavior, but that behavior may not match what we actually want.
+
+Therefore:
+
+\begin{quote}
+Be careful and define comparison behavior explicitly whenever meaningful comparisons are needed.
+\end{quote}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item The \verb|__str__| method controls how objects print.
+    \item \verb|print(object)| automatically calls \verb|object.__str__()|.
+    \item Operator overloading allows us to redefine operators for custom classes.
+    \item Comparison operators are implemented using special methods such as \verb|__lt__|.
+    \item Different classes may define operators in different ways.
+\end{itemize}
+
+\end{document}

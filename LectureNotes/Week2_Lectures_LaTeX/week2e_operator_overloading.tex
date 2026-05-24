@@ -1,0 +1,265 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Operator Overloading}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Earlier, we discussed overloading comparison operators such as:
+
+\[
+<, >, ==, !=
+\]
+
+using methods such as:
+
+\begin{lstlisting}[language=Python]
+__lt__()
+\end{lstlisting}
+
+However, Python also allows us to overload arithmetic operators.
+
+\section{Why Arithmetic Overloading Matters}
+
+Suppose we define a \verb|Time| class.
+
+We might naturally want to compute:
+
+\begin{lstlisting}[language=Python]
+time4 = time3 - time1
+\end{lstlisting}
+
+But what does subtraction mean for time objects?
+
+Python does not know automatically.
+
+Therefore, we must define the meaning ourselves.
+
+\section{The \texttt{\_\_sub\_\_()} Method}
+
+The subtraction operator:
+
+\[
+-
+\]
+
+is controlled by:
+
+\begin{lstlisting}[language=Python]
+def __sub__(self, other):
+\end{lstlisting}
+
+Here:
+
+\begin{itemize}
+    \item \verb|self| is the left object,
+    \item \verb|other| is the right object.
+\end{itemize}
+
+\section{Example: Time Difference}
+
+Suppose we define:
+
+\begin{lstlisting}[language=Python]
+class Time:
+
+    def __init__(self, hours, minutes):
+        self.hours = hours
+        self.minutes = minutes
+\end{lstlisting}
+
+We can implement subtraction:
+
+\begin{lstlisting}[language=Python]
+def __sub__(self, other):
+
+    time_diff = Time(0, 0)
+
+    if self.minutes >= other.minutes:
+
+        time_diff.minutes = self.minutes - other.minutes
+
+        time_diff.hours = self.hours - other.hours
+
+    else:
+
+        time_diff.minutes = (
+            self.minutes - other.minutes + 60
+        )
+
+        time_diff.hours = (
+            self.hours - other.hours - 1
+        )
+
+    return time_diff
+\end{lstlisting}
+
+\section{Understanding the Logic}
+
+Suppose:
+
+\begin{lstlisting}[language=Python]
+time1 = Time(10, 45)
+time2 = Time(8, 20)
+\end{lstlisting}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+time1 - time2
+\end{lstlisting}
+
+should represent:
+
+\[
+10:45 - 8:20 = 2:25
+\]
+
+If the minutes require borrowing, we borrow one hour and add 60 minutes.
+
+\section{Returning a New Object}
+
+Notice that the subtraction method creates a new \verb|Time| object:
+
+\begin{lstlisting}[language=Python]
+time_diff = Time(0, 0)
+\end{lstlisting}
+
+and returns it.
+
+This is a common pattern in object-oriented programming.
+
+\section{Other Numerical Operator Methods}
+
+Python provides many special methods for arithmetic operations.
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Method & Operator \\
+\midrule
+\verb|__add__| & + \\
+\verb|__sub__| & - \\
+\verb|__mul__| & * \\
+\verb|__truediv__| & / \\
+\verb|__floordiv__| & // \\
+\verb|__mod__| & \% \\
+\verb|__pow__| & ** \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Logical Operator Methods}
+
+There are also methods associated with logical operations.
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Method & Meaning \\
+\midrule
+\verb|__and__| & logical and \\
+\verb|__or__| & logical or \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Conversion Methods}
+
+Python also allows customization of built-in conversion functions.
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Method & Function \\
+\midrule
+\verb|__abs__| & \verb|abs()| \\
+\verb|__int__| & \verb|int()| \\
+\verb|__float__| & \verb|float()| \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Example: Integer Conversion}
+
+Suppose we define:
+
+\begin{lstlisting}[language=Python]
+class Time:
+
+    def __int__(self):
+        return 60*self.hours + self.minutes
+\end{lstlisting}
+
+Then:
+
+\begin{lstlisting}[language=Python]
+t = Time(2, 30)
+
+print(int(t))
+\end{lstlisting}
+
+would produce:
+
+\[
+150
+\]
+
+because 2 hours and 30 minutes equals 150 total minutes.
+
+\section{The Big Idea}
+
+Operator overloading allows objects to behave naturally.
+
+For example:
+
+\begin{itemize}
+    \item time subtraction behaves like subtraction,
+    \item object comparison behaves like comparison,
+    \item printing behaves naturally,
+    \item conversions behave naturally.
+\end{itemize}
+
+This makes programs easier to read and easier to use.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Python allows arithmetic operator overloading.
+    \item Special methods define the meaning of operators for custom classes.
+    \item \verb|__sub__| defines subtraction.
+    \item Many arithmetic operators can be overloaded.
+    \item Built-in conversion functions can also be customized.
+    \item Overloading helps objects behave naturally and intuitively.
+\end{itemize}
+
+\end{document}

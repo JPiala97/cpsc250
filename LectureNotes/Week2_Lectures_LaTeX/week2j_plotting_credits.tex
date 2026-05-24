@@ -1,0 +1,280 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Plotting the Credits Profile}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Goal}
+
+After simulating many games, we want to visualize the results.
+
+In particular, we want to plot the number of credits as a function of round number.
+
+This is a data manipulation task:
+
+\begin{quote}
+Store the data, then plot the data.
+\end{quote}
+
+\section{What Data Do We Need?}
+
+To plot credits versus round number, we need two lists:
+
+\begin{itemize}
+    \item x-values: round numbers,
+    \item y-values: credits.
+\end{itemize}
+
+For example:
+
+\begin{lstlisting}[language=Python]
+rounds = [0, 1, 2, 3, 4]
+credits = [10, 11, 12, 11, 12]
+\end{lstlisting}
+
+These lists must correspond element-by-element.
+
+\section{Storing Simulation Results}
+
+For one simulation, we might store:
+
+\begin{lstlisting}[language=Python]
+result_round = []
+credit_round = []
+\end{lstlisting}
+
+At each round:
+
+\begin{lstlisting}[language=Python]
+result_round.append(rounds)
+credit_round.append(credits)
+\end{lstlisting}
+
+For many simulations, we need lists of lists:
+
+\begin{lstlisting}[language=Python]
+round_result = []
+credit_result = []
+result_number = []
+\end{lstlisting}
+
+Each simulation contributes one list of round numbers and one list of credit values.
+
+\section{Matplotlib}
+
+Python's most common plotting library is Matplotlib.
+
+The usual import is:
+
+\begin{lstlisting}[language=Python]
+import matplotlib.pyplot as plt
+\end{lstlisting}
+
+The \texttt{pyplot} part is one submodule of Matplotlib.
+
+By convention, we import it as:
+
+\begin{lstlisting}[language=Python]
+plt
+\end{lstlisting}
+
+\section{Basic Plot}
+
+A basic line plot is:
+
+\begin{lstlisting}[language=Python]
+plt.plot(result_round, credit_round)
+plt.show()
+\end{lstlisting}
+
+Here:
+
+\begin{itemize}
+    \item \verb|result_round| provides the x-values,
+    \item \verb|credit_round| provides the y-values.
+\end{itemize}
+
+\section{Rules of Plotting}
+
+A good plot should include:
+
+\begin{enumerate}
+    \item a descriptive title,
+    \item a labeled x-axis,
+    \item a labeled y-axis.
+\end{enumerate}
+
+For this problem, a good title is:
+
+\begin{lstlisting}[language=Python]
+plt.title("Credits vs. Round Number")
+\end{lstlisting}
+
+The axis labels are:
+
+\begin{lstlisting}[language=Python]
+plt.xlabel("Round Number")
+plt.ylabel("Credits")
+\end{lstlisting}
+
+\section{Complete Single-Game Plot}
+
+\begin{lstlisting}[language=Python]
+plt.plot(result_round, credit_round)
+
+plt.title("Credits vs. Round Number")
+plt.xlabel("Round Number")
+plt.ylabel("Credits")
+
+plt.show()
+\end{lstlisting}
+
+\section{Plotting Multiple Simulations}
+
+If we run many simulations, we can plot several credit histories at once.
+
+Suppose:
+
+\begin{lstlisting}[language=Python]
+round_result[i]
+credit_result[i]
+\end{lstlisting}
+
+store the data for simulation \(i\).
+
+Then:
+
+\begin{lstlisting}[language=Python]
+for i in range(num_sims):
+    plt.plot(round_result[i], credit_result[i])
+\end{lstlisting}
+
+plots all simulations on the same axes.
+
+\section{Interpreting the Plot}
+
+Each line represents one simulated game.
+
+A game begins with some initial number of credits.
+
+Then credits move up and down until the game ends at zero credits.
+
+This creates a random-walk-like path.
+
+\section{Histogram of Game Lengths}
+
+Another useful plot is a histogram of the number of rounds required before the game ends.
+
+If:
+
+\begin{lstlisting}[language=Python]
+result_number = [18422, 503, 971, ...]
+\end{lstlisting}
+
+stores the number of rounds for each simulation, then:
+
+\begin{lstlisting}[language=Python]
+plt.hist(result_number)
+plt.show()
+\end{lstlisting}
+
+creates a histogram.
+
+\section{Number of Bins}
+
+A histogram groups data into bins.
+
+The number of bins affects the visual interpretation.
+
+For example:
+
+\begin{lstlisting}[language=Python]
+plt.hist(result_number, bins=20)
+\end{lstlisting}
+
+uses 20 bins.
+
+Too few bins may hide structure. Too many bins may make the plot noisy.
+
+\section{Histogram Labels}
+
+As always, we label the plot.
+
+\begin{lstlisting}[language=Python]
+plt.title("Distribution of Game Lengths")
+plt.xlabel("Number of Rounds")
+plt.ylabel("Frequency")
+\end{lstlisting}
+
+\section{Complete Histogram Example}
+
+\begin{lstlisting}[language=Python]
+plt.hist(result_number, bins=20)
+
+plt.title("Distribution of Game Lengths")
+plt.xlabel("Number of Rounds")
+plt.ylabel("Frequency")
+
+plt.show()
+\end{lstlisting}
+
+\section{Philosophy of the Simulation}
+
+The notes emphasize that we are not just playing a game.
+
+We are modeling a random walk process.
+
+This connects programming to probability, statistics, and simulation.
+
+The general scientific workflow is:
+
+\begin{enumerate}
+    \item define a model,
+    \item run the model many times,
+    \item store the results,
+    \item visualize the results,
+    \item interpret the behavior.
+\end{enumerate}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Plotting requires stored x-values and y-values.
+    \item For the credits simulation, x is round number and y is credits.
+    \item Matplotlib is commonly imported as \verb|plt|.
+    \item Good plots need titles and axis labels.
+    \item Multiple simulations can be plotted on the same axes.
+    \item Histograms show distributions.
+    \item The number of bins controls histogram resolution.
+\end{itemize}
+
+\end{document}

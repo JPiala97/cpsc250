@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,enumitem,listings,xcolor,hyperref}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Philosophy of Complex Objects}
+\author{Edward Brash}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Motivation}
+
+Before we begin writing our own classes, it is useful to think about why classes exist in the first place.
+
+A program often needs to represent a ``thing'' from the real world. That thing may not be naturally described by a single integer, float, string, list, tuple, or dictionary. Instead, it may require several related pieces of information, possibly of different data types.
+
+For example, imagine that we want to store information about a student.
+
+\section{A Student as a Collection of Information}
+
+A student might have the following data associated with them:
+
+\begin{center}
+\begin{tabular}{clc}
+\toprule
+Number & Information & Type \\
+\midrule
+1 & First name & string \\
+2 & Last name & string \\
+3 & Student ID & integer \\
+4 & Address & list \\
+5 & Grades & dictionary \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The address itself might be a list:
+
+\begin{lstlisting}[language=Python]
+address = [908, "Promenade Lane", "Williamsburg", "VA", 23185]
+\end{lstlisting}
+
+The grades might be a dictionary:
+
+\begin{lstlisting}[language=Python]
+grades = {
+    "HW": 94.2,
+    "Quiz": 75.8,
+    "Tests": 88.4,
+    "Final": 74.2
+}
+\end{lstlisting}
+
+Already, this is no longer a simple primitive value. It is a structured collection of information.
+
+\section{The List-Based Approach}
+
+One possible approach is to store all the student information in a list:
+
+\begin{lstlisting}[language=Python]
+student_info = [first_name, last_name, student_id, address, grades]
+\end{lstlisting}
+
+Then we could access the homework grade by writing:
+
+\begin{lstlisting}[language=Python]
+print(student_info[4]["HW"])
+\end{lstlisting}
+
+This works, but it requires us to remember that index 4 contains the grades dictionary.
+
+\section{Why This Works, But Is Not Ideal}
+
+The list-based approach technically works.
+
+However, it has several disadvantages:
+
+\begin{itemize}
+    \item The meaning of each index must be remembered.
+    \item The code becomes difficult to read.
+    \item The structure is fragile.
+    \item If we change the order of the list, many parts of the program may break.
+\end{itemize}
+
+For example:
+
+\begin{lstlisting}[language=Python]
+student_info[4]["HW"]
+\end{lstlisting}
+
+requires us to remember that:
+
+\begin{itemize}
+    \item index 4 means ``grades'',
+    \item and \verb|"HW"| is a key inside the grades dictionary.
+\end{itemize}
+
+This can quickly become confusing.
+
+\section{A Complex Object}
+
+The key idea is that \verb|student_info| is really a complex assembly of information.
+
+It contains:
+
+\begin{itemize}
+    \item strings,
+    \item integers,
+    \item lists,
+    \item dictionaries,
+    \item and possibly even other objects.
+\end{itemize}
+
+It is natural to call this entire collection an \textbf{object}.
+
+\section{Everything in Python Is Already an Object}
+
+In Python, almost everything can be thought of as an object:
+
+\begin{itemize}
+    \item integers,
+    \item floats,
+    \item strings,
+    \item booleans,
+    \item lists,
+    \item tuples,
+    \item dictionaries,
+    \item lists of lists,
+    \item lists of dictionaries,
+    \item dictionaries of lists,
+    \item and so on.
+\end{itemize}
+
+Python already treats these things as objects internally.
+
+The next step is to ask:
+
+\begin{quote}
+Can we define our own object types?
+\end{quote}
+
+The answer is yes.
+
+\section{Main Point}
+
+It would be useful to have a system that allows us to:
+
+\begin{enumerate}
+    \item define objects in our own way,
+    \item decide what information belongs inside those objects,
+    \item define how users interact with those objects,
+    \item and protect the internal structure from accidental misuse.
+\end{enumerate}
+
+This is the motivation for classes and object-oriented programming.
+
+\section{Classes and Object-Oriented Programming}
+
+A class allows us to define a new kind of object.
+
+Instead of forcing student data into a list, we could imagine defining a \verb|Student| class.
+
+Then each student would be a \verb|Student| object, with meaningful internal variables such as first name, last name, ID number, address, and grades.
+
+The advantage is that the program becomes much more readable and maintainable.
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Real-world data often consists of many related pieces of information.
+    \item Primitive types alone are not always enough.
+    \item Lists and dictionaries can store complex information, but may become awkward.
+    \item A complex assembly of information can be thought of as an object.
+    \item Classes allow us to define our own object types.
+    \item Object-oriented programming is about defining objects and controlling how users interact with them.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,297 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Classes Program Example: The GVDie Craps Game}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Program Goal}
+
+In this example, we write a program to play an automated dice game using a provided \texttt{GVDie} class.
+
+The player rolls two dice. Depending on the result, the player may:
+
+\begin{itemize}
+    \item win one credit,
+    \item lose one credit,
+    \item or set a goal for future rolls.
+\end{itemize}
+
+A round ends when the player either wins or loses a credit. The entire game ends when the player reaches zero credits.
+
+\section{The Provided \texttt{GVDie} Class}
+
+The provided die class represents a single six-sided die.
+
+A simplified version is:
+
+\begin{lstlisting}[language=Python]
+import random
+
+class GVDie:
+
+    def __init__(self):
+        self.value = None
+
+    def roll(self):
+        self.value = random.randint(1, 6)
+
+    def get_value(self):
+        return self.value
+
+    def compare_to(self, d):
+        return self.value == d.value
+\end{lstlisting}
+
+\section{The Meaning of \texttt{None}}
+
+The constructor initializes:
+
+\begin{lstlisting}[language=Python]
+self.value = None
+\end{lstlisting}
+
+The value \texttt{None} means that the die does not yet have a meaningful value.
+
+This is useful because a die should not really have a value until it has been rolled.
+
+\section{Importing and Using the Die Class}
+
+If the class is stored in a file called \texttt{gv\_die.py}, then the main program can import it:
+
+\begin{lstlisting}[language=Python]
+import random
+from gv_die import GVDie
+\end{lstlisting}
+
+Then we can create die objects:
+
+\begin{lstlisting}[language=Python]
+die1 = GVDie()
+die2 = GVDie()
+\end{lstlisting}
+
+Each die object has its own internal value.
+
+\section{Random Seeds}
+
+The program may ask the user for a random seed:
+
+\begin{lstlisting}[language=Python]
+seed = int(input("Enter seed: "))
+random.seed(seed)
+\end{lstlisting}
+
+A seed defines the particular sequence of random numbers.
+
+This is useful for testing because it makes program behavior repeatable.
+
+\section{Credits}
+
+The user also enters the number of credits:
+
+\begin{lstlisting}[language=Python]
+credits = int(input("Enter starting credits: "))
+\end{lstlisting}
+
+These credits can be interpreted as the player's number of lives.
+
+The game continues until:
+
+\begin{lstlisting}[language=Python]
+credits == 0
+\end{lstlisting}
+
+\section{Basic Game Setup}
+
+The notes outline the beginning of the program as follows:
+
+\begin{enumerate}
+    \item Create two \texttt{GVDie} objects.
+    \item Initialize the number of rounds.
+    \item Initialize the goal value to \texttt{-1}.
+    \item Begin the main game loop.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python]
+die1 = GVDie()
+die2 = GVDie()
+
+rounds = 0
+goal = -1
+
+while credits > 0:
+    ...
+\end{lstlisting}
+
+\section{How a Round Works}
+
+A round begins with an initial roll of both dice.
+
+\begin{lstlisting}[language=Python]
+die1.roll()
+die2.roll()
+
+roll = die1.get_value() + die2.get_value()
+\end{lstlisting}
+
+The total determines what happens next.
+
+\section{Initial Roll Outcomes}
+
+For the initial roll:
+
+\begin{itemize}
+    \item rolling 7 or 11 wins one credit,
+    \item rolling 3 or 12 loses one credit,
+    \item any other value becomes the goal.
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+if roll == 7 or roll == 11:
+    credits = credits + 1
+
+elif roll == 3 or roll == 12:
+    credits = credits - 1
+
+else:
+    goal = roll
+\end{lstlisting}
+
+\section{Goal Rolls}
+
+If the initial roll sets a goal, the player continues rolling.
+
+On later rolls:
+
+\begin{itemize}
+    \item rolling 7 loses one credit,
+    \item rolling the goal wins one credit,
+    \item any other roll means roll again.
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+while goal != -1:
+
+    die1.roll()
+    die2.roll()
+
+    roll = die1.get_value() + die2.get_value()
+
+    if roll == 7:
+        credits = credits - 1
+        goal = -1
+
+    elif roll == goal:
+        credits = credits + 1
+        goal = -1
+\end{lstlisting}
+
+\section{Why This Is a Class Example}
+
+This program is useful because it shows objects in action.
+
+Instead of treating dice as raw integers, we use die objects that know how to:
+
+\begin{itemize}
+    \item roll themselves,
+    \item store their current value,
+    \item return their value,
+    \item compare themselves to another die.
+\end{itemize}
+
+The class bundles together both data and behavior.
+
+\section{Complete Program Skeleton}
+
+\begin{lstlisting}[language=Python]
+import random
+from gv_die import GVDie
+
+seed = int(input("Enter seed: "))
+random.seed(seed)
+
+credits = int(input("Enter starting credits: "))
+
+die1 = GVDie()
+die2 = GVDie()
+
+rounds = 0
+
+while credits > 0:
+
+    rounds = rounds + 1
+    goal = -1
+
+    die1.roll()
+    die2.roll()
+
+    roll = die1.get_value() + die2.get_value()
+
+    if roll == 7 or roll == 11:
+        credits = credits + 1
+
+    elif roll == 3 or roll == 12:
+        credits = credits - 1
+
+    else:
+        goal = roll
+
+    while goal != -1:
+
+        die1.roll()
+        die2.roll()
+
+        roll = die1.get_value() + die2.get_value()
+
+        if roll == 7:
+            credits = credits - 1
+            goal = -1
+
+        elif roll == goal:
+            credits = credits + 1
+            goal = -1
+
+print("Game over")
+print("Rounds played:", rounds)
+\end{lstlisting}
+
+\section{Key Takeaways}
+
+\begin{itemize}
+    \item Objects combine state and behavior.
+    \item A die object stores its current value.
+    \item Methods such as \texttt{roll()} and \texttt{get\_value()} define how users interact with the object.
+    \item A random seed makes simulations repeatable.
+    \item Larger programs become manageable when broken into loops, branches, and objects.
+\end{itemize}
+
+\end{document}
