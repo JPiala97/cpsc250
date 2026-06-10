@@ -1,0 +1,186 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+
+\title{What Happens When Python Runs?}
+\author{CPSC 250}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{The Big Picture}
+
+When you run
+
+\begin{verbatim}
+python myprogram.py
+\end{verbatim}
+
+Python is:
+
+\begin{itemize}
+\item Not directly executed by the CPU
+\item Not translated into C++ source code
+\item Executed through an interpreter and virtual machine
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Step 1: Read the Source File}
+
+Example:
+
+\begin{verbatim}
+x = 5
+y = 7
+print(x + y)
+\end{verbatim}
+
+The Python interpreter first reads the text file.
+
+\end{frame}
+
+\begin{frame}[fragile]{Step 2: Parsing}
+
+The interpreter converts the text into an Abstract Syntax Tree.
+
+\begin{verbatim}
+Assignment
+ ├── Variable("x")
+ └── Integer(5)
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Step 3: Compile to Bytecode}
+
+The AST is converted into Python bytecode.
+
+\begin{verbatim}
+LOAD_CONST 5
+STORE_NAME x
+LOAD_CONST 7
+STORE_NAME y
+LOAD_NAME x
+LOAD_NAME y
+BINARY_OP +
+CALL print
+\end{verbatim}
+
+Bytecode is lower-level than Python source,
+but it is still not machine code.
+
+\end{frame}
+
+\begin{frame}[fragile]{Step 4: The Python Virtual Machine}
+
+The bytecode is executed by the Python Virtual Machine.
+
+\begin{verbatim}
+while True:
+    instruction = next_bytecode()
+    execute(instruction)
+\end{verbatim}
+
+The virtual machine acts like a tiny computer
+whose instruction set is Python bytecode.
+
+\end{frame}
+
+\begin{frame}[fragile]{Where Does C Come In?}
+
+CPython is written mostly in C.
+
+For example:
+
+\begin{verbatim}
+x + y
+\end{verbatim}
+
+may ultimately call something like:
+
+\begin{verbatim}
+PyNumber_Add(x, y)
+\end{verbatim}
+
+The CPU executes the compiled C interpreter,
+not the original Python source.
+
+\end{frame}
+
+\begin{frame}[fragile]{Python Objects in Memory}
+
+Everything in Python is an object.
+
+\begin{verbatim}
+x = 42
+\end{verbatim}
+
+creates an integer object, and the name
+\texttt{x} refers to that object.
+
+\begin{verbatim}
+x  --->  PyLongObject(42)
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{The Complete Pipeline}
+
+\begin{center}
+Python Source
+
+$\downarrow$
+
+Parser
+
+$\downarrow$
+
+Abstract Syntax Tree
+
+$\downarrow$
+
+Bytecode Compiler
+
+$\downarrow$
+
+Python Bytecode
+
+$\downarrow$
+
+Python Virtual Machine
+
+$\downarrow$
+
+C Implementation of Python
+
+$\downarrow$
+
+Machine Code on the CPU
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Takeaway}
+
+When you run a Python program:
+
+\begin{enumerate}
+\item Python source code is parsed
+\item An AST is created
+\item The AST is compiled to bytecode
+\item The virtual machine executes the bytecode
+\item The interpreter's compiled C code runs on the CPU
+\end{enumerate}
+
+\vspace{0.4cm}
+
+Python is often called interpreted, but CPython
+also performs a compilation step.
+
+\end{frame}
+
+\end{document}

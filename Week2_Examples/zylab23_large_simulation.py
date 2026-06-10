@@ -6,12 +6,12 @@ import gv_die
 import matplotlib.pyplot as plt
 
 # Read random seed to support testing (do not alter) and starting credits
-seed = int(input())
+seed = int(input("Enter Seed Number: "))
 # Set the seed for random
 random.seed(int(seed))
 
 # Initial credits
-initial_credits = int(input())
+initial_credits = int(input("Enter Initial Credits: "))
 
 # Step 1a:   (i) Define two new GVDie objects, and define initial values for the number of rounds
 #               played, and goal to be reached for the next roll.

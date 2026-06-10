@@ -5,12 +5,12 @@ import random
 import gv_die  # look for a file called "gv_die.py" IN THE CURRENT FOLDER!!!!
 
 # Read random seed to support testing (do not alter) and starting credits
-seed = int(input())
+seed = int(input("Enter a seed: "))
 # Set the seed for random
 random.seed(int(seed))
 
 # Initial credits
-credits = int(input())
+credits = int(input("Enter the number of credits: "))
 
 # Step 1a:   (i) Define two new GVDie objects, and define initial values for the number of rounds
 #               played, and goal to be reached for the next roll.

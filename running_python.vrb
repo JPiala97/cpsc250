@@ -1,0 +1,15 @@
+\frametitle{Python Objects in Memory}
+
+Everything in Python is an object.
+
+\begin{verbatim}
+x = 42
+\end{verbatim}
+
+creates an integer object, and the name
+\texttt{x} refers to that object.
+
+\begin{verbatim}
+x  --->  PyLongObject(42)
+\end{verbatim}
+
