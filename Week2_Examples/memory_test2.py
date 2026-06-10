@@ -1,5 +1,4 @@
-import gc
-import ctypes
+import sys
 
 class Dog:
     def __init__(self, name):
@@ -11,22 +10,18 @@ class Cat:
         self.name = name
         self.cousin = cousin
 
-# Main Program
-gc_objs = gc.get_objects()
-print(f"BEFORE: {len(gc_objs)}")
-
 bailey = Dog("Bailey")
 misty = Cat("Misty", bailey)
 
 print("\nREFERENCE COUNT")
-print(f"bailey's reference count: {ctypes.c_long.from_address(id(bailey)).value}")
-print(f"misty's reference count: {ctypes.c_long.from_address(id(misty)).value}")
+print(f"bailey's reference count: {sys.getrefcount(bailey)-1}")
+print(f"misty's reference count: {sys.getrefcount(misty)}-1")
 
-gc_objs = gc.get_objects()
-print(f"\nAFTER CREATION: {len(gc_objs)}")
+# Note:  These reference counts are increased by 1 over what you might think, because
+#       passing the object into the getrefcount function counts as a reference (temporary reference).
 
-del bailey
 del misty
 
-gc_objs = gc.get_objects()
-print(f"\nAFTER DELETION: {len(gc_objs)}")
+print("\nAFTER DELETION")
+print(f"bailey's reference count: {sys.getrefcount(bailey)-1}")
+#print(f"misty's reference count: {sys.getrefcount(misty)-1}")
