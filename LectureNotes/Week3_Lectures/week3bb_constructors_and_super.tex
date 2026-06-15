@@ -1,0 +1,402 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.05,0.15,0.55}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{purple},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CPSC 250 \\ Inheritance Philosophy in Python}
+\author{Edward Brash}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Inheritance, Constructors, and \texttt{super()}}
+
+\subsection{Introduction}
+
+In our discussion of inheritance, we learned that one class can inherit data and behavior from another class.
+
+Consider the following example:
+
+\begin{lstlisting}[language=Python]
+class Person:
+    def init(self, name):
+    self.name = name
+
+    def introduce(self):
+        print(f"Hello, my name is {self.name}")
+
+class Student(Person):
+    pass
+\end{lstlisting}
+
+Since \texttt{Student} inherits from \texttt{Person}, every \texttt{Student} object has a \texttt{name} attribute and can use the \texttt{introduce()} method.
+
+\begin{lstlisting}[language=Python]
+s = Student("Alice")
+s.introduce()
+\end{lstlisting}
+
+Output:
+
+\begin{verbatim}
+Hello, my name is Alice
+\end{verbatim}
+
+There is actually something really subtle going on here!  Because the sub-class does not have an \verb|__init__| method at all, it actually
+inherits that method from the base class!  In this particular case, it works, $BUT$ it is a dangerous game, as we will see below.
+
+\subsection{A Problem Appears}
+
+Suppose we modify the \texttt{Student} class:
+
+\begin{lstlisting}[language=Python]
+class Student(Person):
+    def init(self, name, student_id):
+        self.student_id = student_id
+\end{lstlisting}
+
+Now consider:
+
+\begin{lstlisting}[language=Python]
+s = Student("Alice", "C001")
+\end{lstlisting}
+
+The program runs successfully.
+
+However, something important has happened.
+
+The constructor of the \texttt{Person} class never executed.
+
+As a result, the object contains:
+
+\begin{lstlisting}[language=Python]
+self.student_id
+\end{lstlisting}
+
+but it does not contain:
+
+\begin{lstlisting}[language=Python]
+self.name
+\end{lstlisting}
+
+Attempting to use:
+
+\begin{lstlisting}[language=Python]
+s.introduce()
+\end{lstlisting}
+
+will produce an error because \texttt{name} was never initialized.
+
+\subsection{The Solution: Calling the Base Class Constructor}
+
+When a derived class defines its own constructor, it becomes responsible for initializing the inherited portion of the object.
+
+Python provides the \texttt{super()} function for this purpose.
+
+\begin{lstlisting}[language=Python]
+class Student(Person):
+    def init(self, name, student_id):
+        super().init(name)
+        self.student_id = student_id
+\end{lstlisting}
+
+Now the initialization process occurs in two stages:
+
+\begin{enumerate}
+\item The \texttt{Person} constructor initializes the inherited data.
+\item The \texttt{Student} constructor initializes the new data.
+\end{enumerate}
+
+The resulting object contains both attributes:
+
+\begin{lstlisting}[language=Python]
+s = Student("Alice", "C001")
+
+print(s.name)
+print(s.student_id)
+\end{lstlisting}
+
+Output:
+
+\begin{verbatim}
+Alice
+C001
+\end{verbatim}
+
+\subsection{Why Doesn’t Python Do This Automatically?}
+
+Students often ask why Python requires an explicit call to the base-class constructor.
+
+Languages such as Java and C++ automatically invoke the parent constructor.
+
+Python takes a different approach.
+
+One of Python’s design principles is:
+
+\begin{quote}
+Explicit is better than implicit.
+\end{quote}
+
+If a programmer overrides a method, Python assumes that the programmer intends to control what happens next.
+
+Since \verb|__init__()| is simply another method, Python does not automatically call the version defined in the parent class.
+
+Instead, the programmer must explicitly decide whether the parent constructor should execute.
+
+\subsection{A Deeper Question: What Is a Constructor?}
+
+Interestingly, \verb|__init__()| is not actually responsible for creating an object.
+
+When Python executes:
+
+\begin{lstlisting}[language=Python]
+s = Student("Alice", "C001")
+\end{lstlisting}
+
+the following steps occur:
+
+\begin{enumerate}
+\item Memory is allocated for the new object.
+\item The object is created.
+\item \verb|__init__()| initializes the object’s data.
+\end{enumerate}
+
+Thus, \verb|__init__()| is better thought of as an initialization method rather than a true constructor.
+
+The object already exists before \verb|__init__()| begins executing.
+
+\subsection{The Diamond Problem}
+
+The real reason Python’s inheritance system is designed this way becomes apparent when multiple inheritance is involved.
+
+Consider the following inheritance diagram:
+
+\begin{verbatim}
+  Animal
+  /    \
+ B      C
+  \    /
+     D
+\end{verbatim}
+
+Notice that class \texttt{D} inherits from both \texttt{B} and \texttt{C}.
+
+Both \texttt{B} and \texttt{C} inherit from \texttt{Animal}.
+
+A natural question arises:
+
+\begin{quote}
+How many times should the \texttt{Animal} constructor run?
+\end{quote}
+
+Once?
+
+Twice?
+
+This ambiguity is known as the \textbf{Diamond Problem}.
+
+\subsection{Method Resolution Order (MRO)}
+
+Python solves this problem by defining a Method Resolution Order (MRO).
+
+The MRO specifies the order in which Python searches for methods.
+
+Consider:
+
+\begin{lstlisting}[language=Python]
+class Animal:
+    pass
+
+class B(Animal):
+    pass
+
+class C(Animal):
+    pass
+
+class D(B, C):
+    pass
+
+print(D.mro())
+\end{lstlisting}
+
+Output:
+
+\begin{verbatim}
+[D, B, C, Animal, object]
+\end{verbatim}
+
+This list tells Python exactly how methods should be located.
+
+\subsection{The Meaning of \texttt{super()}}
+
+Many beginning programmers believe that \texttt{super()} means:
+
+\begin{quote}
+Call my parent class.
+\end{quote}
+
+This is not quite correct.
+
+A more accurate description is:
+
+\begin{quote}
+Call the next class in the Method Resolution Order.
+\end{quote}
+
+For ordinary single inheritance, these two interpretations happen to be the same.
+
+For multiple inheritance, however, the distinction becomes important.
+
+\subsection{Writing Constructors Correctly in the Diamond Pattern}
+
+Now that we know that \verb|super()| follows the Method Resolution Order, we can rewrite the diamond example correctly.
+
+The key rule is:
+
+\begin{quote}
+Every class in the hierarchy should call \verb|super().init()| exactly once.
+\end{quote}
+
+\newpage
+
+Consider the following version:
+
+\begin{lstlisting}[language=Python]
+class Animal:
+    def init(self):
+        print("Animal initialized")
+
+class B(Animal):
+    def init(self):
+        super().init()
+        print("B initialized")
+
+class C(Animal):
+    def init(self):
+        super().init()
+        print("C initialized")
+
+class D(B, C):
+    def init(self):
+        super().init()
+        print("D initialized")
+\end{lstlisting}
+
+Now create an object of type \verb|D|:
+
+\begin{lstlisting}[language=Python]
+d = D()
+\end{lstlisting}
+
+Output:
+
+\begin{verbatim}
+Animal initialized
+C initialized
+B initialized
+D initialized
+\end{verbatim}
+
+This may seem surprising at first. Why does \verb|C| initialize before \verb|B| finishes?
+
+The answer is that \verb|super()| does not mean ``call my parent class.’’ It means:
+
+\begin{quote}
+Call the next class in the Method Resolution Order.
+\end{quote}
+
+For this class hierarchy:
+
+\begin{lstlisting}[language=Python]
+print(D.mro())
+\end{lstlisting}
+
+we get:
+
+\begin{verbatim}
+[<class ‘main.D’>, <class ‘main.B’>, <class ‘main.C’>,
+<class ‘main.Animal’>, <class ‘object’>]
+\end{verbatim}
+
+So the constructor calls proceed like this:
+
+\begin{verbatim}
+D.init()
+B.init()
+C.init()
+Animal.init()
+C finishes
+B finishes
+D finishes
+\end{verbatim}
+
+The important result is that \verb|Animal.init()| runs exactly once.
+
+This is why we prefer:
+
+\begin{lstlisting}[language=Python]
+super().init()
+\end{lstlisting}
+
+instead of directly writing:
+
+\begin{lstlisting}[language=Python]
+Animal.init(self)
+\end{lstlisting}
+
+Directly calling the base class constructor can accidentally initialize the same part of the object more than once. Using \verb|super()| allows all classes in the inheritance hierarchy to cooperate.
+
+\subsection{What We Will Use in This Course}
+
+In CPSC 250, we will primarily use single inheritance.
+
+The pattern you should follow is:
+
+\begin{lstlisting}[language=Python]
+class Student(Person):
+    def init(self, name, student_id):
+        super().init(name)
+        self.student_id = student_id
+\end{lstlisting}
+
+Whenever a derived class defines its own constructor, it should generally call the parent constructor using \texttt{super()}.
+
+This ensures that inherited data members are properly initialized and that the entire object is constructed correctly.
+
+\subsection{Key Takeaways}
+
+\begin{itemize}
+\item A derived class inherits data and behavior from its base class.
+\item Defining a new constructor replaces the inherited constructor.
+\item The parent constructor is typically called using \texttt{super()}.
+\item Python chooses explicit constructor chaining rather than automatic constructor chaining.
+\item Multiple inheritance creates the Diamond Problem.
+\item Python resolves this ambiguity using the Method Resolution Order (MRO).
+\item \texttt{super()} follows the MRO rather than simply calling a parent class.
+\end{itemize}
+
+\end{document}
