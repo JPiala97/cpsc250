@@ -15,18 +15,19 @@ def fibonacci(n):
 
 if __name__ == "__main__":
 
-    nth_term = 250
+    nth_term = 10000
 
     from timer import Timer
     timer = Timer()
 
     print(f"The {nth_term} term of the Fibonacci sequence is {fibonacci(nth_term)}")
 
+
     n = []
     elapsed_time = []
     fn = []
 
-    for i in range(301):
+    for i in range(3001):
         timer.start() # start the timer
         fnumber = fibonacci(i) # calculate the ith fibonacci number
         fn.append(fnumber) # append the ith fibonacci number to the list
@@ -34,9 +35,9 @@ if __name__ == "__main__":
         elapsed_time.append(etime) # append the elapsed time to the list
         n.append(i) # append the value of i to the list
 
-    print(n)
-    print(fn)
-    print(elapsed_time)
+    #print(n)
+    #print(fn)
+    #print(elapsed_time)
 
     import matplotlib.pyplot as plt
     plt.plot(n, elapsed_time)
@@ -49,10 +50,10 @@ if __name__ == "__main__":
     plt.show()
 
 
-    import math
-    DeltaN = n[30]-n[10]
-    DeltaT = math.log10(elapsed_time[30])-math.log10(elapsed_time[10])
-    Slope = DeltaT/DeltaN
-    print(f"Slope of the line is {Slope}")
-    a = 10**Slope
-    print(f"Time complexity of the Fibonacci sequence is O({a}^n) where n is the nth term of the sequence")
+    #import math
+    #DeltaN = n[30]-n[10]
+    #DeltaT = math.log10(elapsed_time[30])-math.log10(elapsed_time[10])
+    #Slope = DeltaT/DeltaN
+    #print(f"Slope of the line is {Slope}")
+    #a = 10**Slope
+    #print(f"Time complexity of the Fibonacci sequence is O({a}^n) where n is the nth term of the sequence")

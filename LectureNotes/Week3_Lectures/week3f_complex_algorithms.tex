@@ -229,17 +229,23 @@ def find_root(a, b):
     epsilon = 1.0E-5
 
     if abs(b - a) < epsilon:
-        print("Found root at x =", a)
+        return (a + b) / 2.0
+
+    c = (a + b) / 2.0
+
+    if f(a) * f(c) < 0:
+        return find_root(a, c)
 
     else:
+        return find_root(c, b)
+\end{lstlisting}
 
-        c = (a + b) / 2.0
+\section{Using the Function}
 
-        if f(a) * f(c) < 0:
-            find_root(a, c)
+\begin{lstlisting}[language=Python]
+root = find_root(0.0, 5.0)
 
-        else:
-            find_root(c, b)
+print("Root =", root)
 \end{lstlisting}
 
 \section{Searching Sorted Data}
@@ -261,6 +267,88 @@ Xavier
 \end{center}
 
 We repeatedly check the middle item and eliminate half of the remaining list.
+
+\section{Recursive Binary Search for a Name}
+
+\begin{lstlisting}[language=Python]
+def contains_name(names, target, low, high):
+
+    if low > high:
+        return False
+
+    middle = (low + high) // 2
+
+    if names[middle] == target:
+        return True
+
+    elif target < names[middle]:
+        return contains_name(names, target, low, middle - 1)
+
+    else:
+        return contains_name(names, target, middle + 1, high)
+\end{lstlisting}
+
+\section{Example: Is Moe in the List?}
+
+\begin{lstlisting}[language=Python]
+names = ["Alice", "Charlie", "Dave", "Frieda", "Kallie",
+         "Moe", "Paul", "Sarah", "Xavier"]
+
+answer = contains_name(names, "Moe", 0, len(names) - 1)
+
+print(answer)
+\end{lstlisting}
+
+The recursion proceeds as follows:
+
+\[
+\begin{array}{c|c|c|c|c}
+\text{low} & \text{high} & \text{middle} & \text{name at middle} & \text{decision} \\
+\hline
+0 & 8 & 4 & \text{Kallie} & \text{Moe comes after Kallie} \\
+5 & 8 & 6 & \text{Paul} & \text{Moe comes before Paul} \\
+5 & 5 & 5 & \text{Moe} & \text{Found it!}
+\end{array}
+\]
+
+So the function returns:
+
+\[
+\texttt{True}
+\]
+
+\section{Example: Is Raoul in the List?}
+
+\begin{lstlisting}[language=Python]
+answer = contains_name(names, "Raoul", 0, len(names) - 1)
+
+print(answer)
+\end{lstlisting}
+
+The recursion proceeds as follows:
+
+\[
+\begin{array}{c|c|c|c|c}
+\text{low} & \text{high} & \text{middle} & \text{name at middle} & \text{decision} \\
+\hline
+0 & 8 & 4 & \text{Kallie} & \text{Raoul comes after Kallie} \\
+5 & 8 & 6 & \text{Paul} & \text{Raoul comes after Paul} \\
+7 & 8 & 7 & \text{Sarah} & \text{Raoul comes before Sarah} \\
+7 & 6 & - & - & \text{No items left to search}
+\end{array}
+\]
+
+At this point,
+
+\[
+\texttt{low > high}
+\]
+
+so the function returns:
+
+\[
+\texttt{False}
+\]
 
 \section{Algorithm Efficiency}
 

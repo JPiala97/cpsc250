@@ -31,7 +31,7 @@ def fibonacci_phin(n):
 
 if __name__ == "__main__":
 
-    nth_term = 199
+    nth_term = 100
 
     dec.getcontext().prec = 100  # select 100 decimal place precision
 
