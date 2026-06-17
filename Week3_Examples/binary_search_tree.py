@@ -1,3 +1,5 @@
+import random
+
 def linear_search(names, target, index=0, comparisons=0):
 
     if index >= len(names):
@@ -40,19 +42,42 @@ def binary_search(names, target, low, high, comparisons=0):
             comparisons
         )
 
+def random_name():
+
+    consonants = "bcdfghjklmnpqrstvwxyz"
+    vowels = "aeiou"
+
+    name = ""
+
+    length = random.randint(3, 6)
+
+    for i in range(length):
+
+        if i % 2 == 0:
+            name += random.choice(consonants)
+        else:
+            name += random.choice(vowels)
+
+    return name.capitalize()
+
+
+def get_list_of_names(n):
+
+    names = {"Moe"}
+
+    while len(names) < n:
+        names.add(random_name())
+
+    names = list(names)
+    names.sort()
+
+    return names
+
 if __name__ == "__main__":
 
-    names = [
-        "Alice",
-        "Charlie",
-        "Dave",
-        "Frieda",
-        "Kallie",
-        "Moe",
-        "Paul",
-        "Sarah",
-        "Xavier"
-    ]
+    names = get_list_of_names(1000)
+
+    print("Names:", names)
 
     #
     # Example 1: Name is present
@@ -62,7 +87,7 @@ if __name__ == "__main__":
 
     found, comparisons = linear_search(names, target)
 
-    print("Linear Search")
+    print("Linear Search for Moe")
     print("Found:", found)
     print("Comparisons:", comparisons)
     print()
@@ -74,7 +99,7 @@ if __name__ == "__main__":
         len(names) - 1
     )
 
-    print("Binary Search")
+    print("Binary Search for Moe")
     print("Found:", found)
     print("Comparisons:", comparisons)
     print()
@@ -87,7 +112,7 @@ if __name__ == "__main__":
 
     found, comparisons = linear_search(names, target)
 
-    print("Linear Search")
+    print("Linear Search for Raoul")
     print("Found:", found)
     print("Comparisons:", comparisons)
     print()
@@ -99,6 +124,6 @@ if __name__ == "__main__":
         len(names) - 1
     )
 
-    print("Binary Search")
+    print("Binary Search for Raoul")
     print("Found:", found)
     print("Comparisons:", comparisons)
